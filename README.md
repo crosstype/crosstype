@@ -1,7 +1,9 @@
-@crosstype/core
+@crosstype
 ===
 
-Core library for TypeScript type to JSON Schema generation
+CrossType is a multi-language translation engine for cross-compiling data structure types
+
+www.crosstype.org
 
 ## Pre-release Disclaimer
 

@@ -17,8 +17,8 @@ export enum TypeFlags {
   Composite = 1 << 3,
 
   /* Additional Detail */
-  Named = 1 << 4,                     // Node has name property
-  Specific = 1 << 5,                  // Has Language-specific node kind information in origin
+  Named = 1 << 4,             // Node has name property
+  Specific = 1 << 5,          // Has Language-specific node kind information in origin
 
   /* Type Grouping */
   Literal = 1 << 6,
@@ -29,7 +29,7 @@ export enum TypeFlags {
   Tuple = 1 << 11,
   Object = 1 << 12,
   Pointer = 1 << 13,
-  ObjectMember = 1 << 29,      // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
+  ObjectMember = 1 << 29,     // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
 }
 
 export enum ModifierFlags {
@@ -41,9 +41,9 @@ export enum ModifierFlags {
   Private = 1 << 4,
   Protected = 1 << 5,
   Internal = 1 << 6,
-  Unpublished = 1 << 29,        // Indicates unpublished in the public API scope - Example, TypeScript parser may have
-                                // an option to add this modifier for items tagged with the JSDoc @internal tag
-                                // (see: https://martinfowler.com/bliki/PublishedInterface.html)
+  Unpublished = 1 << 29,      // Indicates unpublished in the public API scope - Example, TypeScript parser may have
+                              // an option to add this modifier for items tagged with the JSDoc @internal tag
+                              // (see: https://martinfowler.com/bliki/PublishedInterface.html)
 }
 
 export enum NodeFlags {

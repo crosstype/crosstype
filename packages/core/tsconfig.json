@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.base",
+  "include": [ "src" ],
+  "exclude": [ "src/options/config" ],
+
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+
+    "baseUrl": "src",
+    "paths": {
+      "#main": [ "main" ],
+      "#schema-node": [ "schema-node" ],
+      "#schema-node/*": [ "schema-node/*" ],
+      "#shared": [ "shared" ],
+      "#shared/*": [ "shared/*" ],
+      "#options": [ "options" ],
+      "#options/*": [ "options/*" ],
+      "#walkers": [ "walkers" ],
+      "#walkers/*": [ "walkers/*" ],
+      "#generated/options": [ "generated/options.generated" ]
+    },
+
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true },
+      {
+        "transform": "@crosstype/build-tools/dist/plugin.js",
+        "beforeEmit": true,
+        "generators": [ "options.generator.js" ],
+        "logLevel": "info",
+        "cwd": "C:/Work/Projects/crosstype/crosstype/packages/core"
+      }
+    ]
+  }
+}

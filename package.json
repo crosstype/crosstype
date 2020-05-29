@@ -1,0 +1,60 @@
+{
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "compile": "yarn workspaces run compile",
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "-------------   ": "-------------",
+    "clean": "yarn workspaces run clean",
+    "clean:global": "yarn run clean && rimraf .yarn.lock .yarn-cache ./**/node_modules ./**/yarn.lock ./**/yarn-error.log ./**/generator.stats.json node_modules",
+    "-------------": "-------------",
+    "compile:core": "yarn workspace @crosstype/core compile",
+    "compile:system": "yarn workspace @crosstype/system compile",
+    "compile:build-tools": "yarn workspace build-tools compile",
+    "build:core": "yarn workspace @crosstype/core build",
+    "build:system": "yarn workspace @crosstype/system build",
+    "build:build-tools": "yarn workspace build-tools build",
+    "------------- ": "-------------",
+    "test:core": "yarn workspace @crosstype/core test",
+    "test:system": "yarn workspace @crosstype/system test",
+    "test:build-tools": "yarn workspace build-tools test",
+    "-------------  ": "-------------",
+    "prepare": "node scripts/setup.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crosstype/crosstype.git"
+  },
+  "devDependencies": {
+    "@phenomnomnominal/tsquery": "^4.0.0",
+    "@crosstype/build-tools": "link:packages/build-tools",
+    "@types/glob": "^7.1.1",
+    "@types/is-glob": "^4.0.1",
+    "@types/jest": "^24.0.23",
+    "@types/json-stable-stringify": "^1.0.32",
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^12.12.7",
+    "@types/rfdc": "^1.1.0",
+    "is-glob": "^4.0.1",
+    "jest": "^24.9.0",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.4",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.8.2",
+    "ts-patch": "^1.2.4",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "~3.9.3",
+    "typescript-transform-paths": "^1.1.14"
+  },
+  "engines": {
+    "node": ">= 8.x",
+    "npm": ">= 3.x",
+    "yarn": ">=0.27.5 || >=1.0.0-20170811"
+  },
+  "workspaces": [
+    "packages/*",
+    "language-packages/*"
+  ],
+  "dependencies": {}
+}

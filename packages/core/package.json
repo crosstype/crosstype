@@ -1,0 +1,58 @@
+{
+  "name": "@crosstype/core",
+  "description": "A multi-language translation engine for cross-compiling data structure types",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "compile": "tsc",
+    "build": "yarn run clean && yarn run compile",
+    "generators": "yarn workspace @crosstype/build-tools run generate-files",
+    "clean": "rimraf coverage dist src/generated **/*.tsbuildinfo **/generator.stats.json",
+    "-------------  ": "-------------",
+    "test": "jest",
+    "test:coverage": "jest --collect-coverage"
+  },
+  "files": [
+    "../../README.md",
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "author": {
+    "name": "Ron S.",
+    "email": "ron@crosstype.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crosstype/crosstype.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "crosstype",
+    "compiler",
+    "parser",
+    "type",
+    "types",
+    "typescript",
+    "json",
+    "schema",
+    "jsonschema",
+    "json-schema",
+    "ct-extras",
+    "python"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">3.0.0"
+  },
+  "dependencies": {
+    "@crosstype/system": "^0.0.0",
+    "@types/rfdc": "^1.1.0",
+    "glob": "~7.1.6",
+    "json-stable-stringify": "^1.0.1",
+    "reflect-metadata": "^0.1.13",
+    "rfdc": "^1.1.4"
+  }
+}

@@ -77,6 +77,7 @@ type ValueNode =
 /* ****************************************************************************************************************** */
 
 export interface Node {
+  parent: Node | undefined
   kind: NodeKind
   origin: NodeOrigin
   typeFlags: TypeFlags

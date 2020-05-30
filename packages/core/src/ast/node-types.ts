@@ -3,7 +3,8 @@ import {
 } from './enums';
 import { CompileOptions, DefinitionCollection, NodeArray, NumberRange, SourceFileInfo } from '../types';
 import { TagMap } from './components';
-import { LanguageCode } from '../language/lang';
+import { Language } from '../language/language';
+import { CrossTypeLanguage } from '../language/crosstype-language';
 
 
 /* ****************************************************************************************************************** */
@@ -150,7 +151,8 @@ export interface Node {
   /**
    * Get compiled source text for node
    */
-  compile(language: LanguageCode): string
+  compile(language: Language.Names): string
+  compile(language: Language.Code): string
 
 
   /* ********************************************************* *
@@ -225,7 +227,7 @@ export interface Namespace extends ModuleBase {
 export interface SourceFile extends ModuleBase {
   kind: NodeKind.SourceFile
   fileName: string
-  language: LanguageCode
+  readonly language: CrossTypeLanguage
 }
 
 // endregion

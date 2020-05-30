@@ -1,3 +1,9 @@
+export enum LanguageCode {
+  TypeScript = 'ts',
+  JSON = 'json',
+  Python = 'python'
+}
+
 /**
  * Tools to create a language package
  */

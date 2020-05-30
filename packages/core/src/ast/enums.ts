@@ -28,7 +28,7 @@ export enum TypeFlags {
   Function = 1 << 10,
   Tuple = 1 << 11,
   Object = 1 << 12,
-  Pointer = 1 << 13,
+  Reference = 1 << 13,
   ObjectMember = 1 << 29,     // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
 }
 
@@ -50,14 +50,22 @@ export enum NodeFlags {
   None = 0,
 
   Named = 1 << 0,
-  Nested = 1 << 29
+  CanReference = 1 << 1,
+  Nested = 1 << 29,
 }
 
 export enum DefinitionFlags {
   None = 0,
 
-  MultipleDeclarations = 1 << 0,
-  Parameterized = 1 << 29       // Instance of a generic with supplied type-arguments
+  /* Declaration Types */
+  Function = 1 << 0,
+  Variable = 1 << 1,
+  Class = 1 << 2,
+  Interface = 1 << 3,
+
+  /* Modifiers */
+  HasMultipleDeclarations = 1 << 0,
+  Parameterized = 1 << 29       // Instance of a generic with supplied type-arguments (combined with Class or Interface)
 }
 
 export enum LinkedListFlags {
@@ -77,9 +85,8 @@ export enum LinkedListFlags {
 /* ****************************************************************************************************************** */
 
 export enum NodeKind {
-  /* Internal */
-  UnresolvedPointer,
-  Pointer,
+  /* ReferenceNode */
+  Reference,
 
   /* Non-Numeric Primitives */
   String,
@@ -91,8 +98,7 @@ export enum NodeKind {
 
   /* Number-Like Primitives */
   Integer,
-  FloatingPointNumber,
-  FixedPointNumber,
+  DecimalNumber,
   ComplexNumber,
   NotANumber,
   Infinity,
@@ -106,8 +112,7 @@ export enum NodeKind {
 
   /* Numeric Literals */
   IntegerLiteral,
-  FloatingPointLiteral,
-  FixedPointLiteral,
+  DecimalLiteral,
   ImaginaryNumberLiteral,
 
   /* Function-Related */
@@ -125,16 +130,25 @@ export enum NodeKind {
   List,
   LinkedList,
 
-  /* Un-categorized */
+  /* Enum-Related */
   Enum,
+  EnumMember,
+
+  /* TypeParameter-Related */
   TypeParameter,
   TypeArgument,
+
+  /* Tuple */
   Tuple,
+
+  /* Set Operations */
   Union,
   Intersection,
+
+  /* Special Types */
   Anything,
   Nothing,
-  Empty,
+  Null,
 
   /* Namespace */
   Namespace,
@@ -163,6 +177,12 @@ export enum OrderKind {
 export enum SignatureKind {
   Call,
   Construct
+}
+
+export enum DecimalKind {
+  Float,
+  Fixed,
+  Either
 }
 
 // endregion

@@ -39,5 +39,11 @@
     "@crosstype/core": "~0.0.0",
     "glob": "~7.1.6",
     "rfdc": "^1.1.4"
+  },
+  "ctl": {
+    "experimental": true,
+    "active": true,
+    "compiler": true,
+    "parser": false
   }
 }

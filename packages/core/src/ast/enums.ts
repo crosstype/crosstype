@@ -1,5 +1,4 @@
 
-
 /* ****************************************************************************************************************** */
 // region: Flags
 /* ****************************************************************************************************************** */
@@ -41,6 +40,7 @@ export enum ModifierFlags {
   Private = 1 << 4,
   Protected = 1 << 5,
   Internal = 1 << 6,
+  Async = 1 << 7,
   Unpublished = 1 << 29,      // Indicates unpublished in the public API scope - Example, TypeScript parser may have
                               // an option to add this modifier for items tagged with the JSDoc @internal tag
                               // (see: https://martinfowler.com/bliki/PublishedInterface.html)
@@ -117,7 +117,7 @@ export enum NodeKind {
 
   /* Function-Related */
   Function,
-  LambdaFunction,
+  AnonymousFunction,
   Signature,
   Parameter,
 

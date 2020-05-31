@@ -4,7 +4,6 @@ import {
 import { CompileOptions, DefinitionCollection, NodeArray, NumberRange, SourceFileInfo } from '../types';
 import { TagMap } from './components';
 import { Language } from '../language/language';
-import { CrossTypeLanguage } from '../language/crosstype-language';
 
 
 /* ****************************************************************************************************************** */
@@ -53,7 +52,7 @@ export type NamedNodeName = string | number | SymbolLiteral
 type AnyNode =
   Node | ReferenceNode | StringNode | CharacterNode | Byte | RegExpNode | SymbolNode | BooleanNode | NumericNode |
   StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionNode |
-  LambdaFunctionNode | SignatureNode | ParameterNode | IterableNode | EnumNode | TypeParameterNode | TypeArgumentNode |
+  AnonymousFunctionNode | SignatureNode | ParameterNode | IterableNode | EnumNode | TypeParameterNode | TypeArgumentNode |
   TupleNode | UnionNode | IntersectionNode | AnythingNode | NothingNode | NullNode | ModuleNode | ObjectNode |
   ClassNode | InterfaceNode | PropertyNode | MethodNode | DefinitionNode
 
@@ -70,7 +69,7 @@ type NonValueNode =
 type ValueNode =
   Node | ReferenceNode | StringNode | CharacterNode | Byte | RegExpNode | SymbolNode | BooleanNode | NumericNode |
   StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionNode |
-  LambdaFunctionNode | IterableNode | EnumNode | TupleNode | UnionNode | IntersectionNode | AnythingNode |
+  AnonymousFunctionNode | IterableNode | EnumNode | TupleNode | UnionNode | IntersectionNode | AnythingNode |
   NothingNode | NullNode | ObjectNode | PropertyNode | MethodNode | DefinitionNode
 
 // endregion
@@ -81,14 +80,14 @@ type ValueNode =
 /* ****************************************************************************************************************** */
 
 export interface Node {
-  id: number
-  parent: Node | undefined
-  flags: NodeFlags
-  typeFlags: TypeFlags
-  kind: NodeKind
-  origin: NodeOrigin
-  modifiers: ModifierFlags
-  compileOptions: CompileOptions
+  readonly id: number
+  readonly parent: Node | undefined
+  readonly flags: NodeFlags
+  readonly typeFlags: TypeFlags
+  readonly kind: NodeKind
+  readonly origin: NodeOrigin
+  readonly modifiers: ModifierFlags
+  readonly compileOptions: CompileOptions
 
   /**
    * @returns Array of parental lineage (ordered from immediate parent to highest)
@@ -141,18 +140,19 @@ export interface Node {
    * Note: All descendants will be deleted. If you'd like to maintain them, create your new node and clone the
    * descendants with the new node as a parent before replacing.
    * @param newNode - New node to replace current with
-   * @param inPlace - When specified, the same place in memory is used, causing any memory references to the node to be
-   *                  retained. This should only be used if there's a good reason.
-   *                  You do not need to use this flag to retain ReferenceNodes. They will be updated automatically.
+   * @param reuseMemory - When specified, the same place in memory is used, causing any memory references to the node
+   *                      to be retained. This should only be used with good reason.
+   *                      You do not need to use this flag to retain ReferenceNodes. They will be updated automatically.
    * @returns newNode (for chaining)
    */
   replace<T extends Node>(this: T, newNode: Node, reuseMemory?: boolean): T
 
   /**
    * Get compiled source text for node
+   * @param language - Language name
+   * @param options - Optionally, override node's compileOptions for compilation
    */
-  compile(language: Language.Names): string
-  compile(language: Language.Code): string
+  compile<T extends Language.Names>(language: T, options?: Language.GetLanguage<T>['optionsTypes']['CompileOptions']): string
 
 
   /* ********************************************************* *
@@ -227,7 +227,7 @@ export interface Namespace extends ModuleBase {
 export interface SourceFile extends ModuleBase {
   kind: NodeKind.SourceFile
   fileName: string
-  readonly language: CrossTypeLanguage
+  readonly language: Language.FullNames
 }
 
 // endregion
@@ -665,11 +665,12 @@ export interface FunctionNode extends NamedNode {
 }
 
 /**
- * Anonymous (un-named) Function
- * @see https://en.wikipedia.org/wiki/Lambda_function_(computer_programming)
+ * Anonymous Function
+ * @see https://en.wikipedia.org/wiki/Anonymous_function
  */
-export interface LambdaFunctionNode extends Node {
-  kind: NodeKind.LambdaFunction
+export interface AnonymousFunctionNode extends Node {
+  name?: string                         // Name is allowed for anonymous functions in some languages (like JS)
+  kind: NodeKind.AnonymousFunction
   signature: SignatureNode
 }
 

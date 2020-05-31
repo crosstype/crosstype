@@ -1,21 +1,19 @@
 {
-  "name": "@crosstype/core",
-  "description": "A multi-language translation engine for cross-compiling data structure types",
+  "name": "@crosstype/ctl-typescript",
+  "description": "TypeScript language package for CrossType",
   "version": "0.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/config.js",
+  "types": "dist/config.d.ts",
   "scripts": {
     "compile": "tsc",
     "build": "yarn run clean && yarn run compile",
-    "generators": "yarn workspace @crosstype/build-tools run generate-files",
     "clean": "rimraf coverage dist src/generated **/*.tsbuildinfo **/generator.stats.json",
     "-------------  ": "-------------",
     "test": "jest",
     "test:coverage": "jest --collect-coverage"
   },
   "files": [
-    "../../README.md",
-    "CHANGELOG.md",
+    "README.md",
     "dist"
   ],
   "author": {
@@ -31,15 +29,7 @@
     "crosstype",
     "compiler",
     "parser",
-    "type",
-    "types",
-    "typescript",
-    "json",
-    "schema",
-    "jsonschema",
-    "json-schema",
-    "ct-extras",
-    "python"
+    "typescript"
   ],
   "engines": {
     "node": ">=8.0.0"
@@ -48,7 +38,8 @@
     "typescript": ">3.0.0"
   },
   "dependencies": {
-    "@crosstype/system": "^0.0.0",
+    "@crosstype/system": "~0.0.0",
+    "@crosstype/core": "~0.0.0",
     "glob": "~7.1.6",
     "rfdc": "^1.1.4"
   }

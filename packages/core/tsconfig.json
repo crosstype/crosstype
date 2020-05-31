@@ -6,31 +6,27 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "module": "ESNext",
 
     "baseUrl": "src",
     "paths": {
-      "#main": [ "main" ],
-      "#schema-node": [ "schema-node" ],
-      "#schema-node/*": [ "schema-node/*" ],
-      "#shared": [ "shared" ],
-      "#shared/*": [ "shared/*" ],
+      "#ast": [ "ast" ],
+      "#ast/*": [ "ast/*" ],
+      "#language": [ "language" ],
       "#options": [ "options" ],
-      "#options/*": [ "options/*" ],
-      "#walkers": [ "walkers" ],
-      "#walkers/*": [ "walkers/*" ],
-      "#generated/options": [ "generated/options.generated" ]
+      "#package": [ "package" ],
     },
 
     "plugins": [
       { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true },
-      {
-        "transform": "@crosstype/build-tools/dist/plugin.js",
-        "beforeEmit": true,
-        "generators": [ "options.generator.js" ],
-        "logLevel": "info",
-        "cwd": "C:/Work/Projects/crosstype/crosstype/packages/core"
-      }
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+//      {
+//        "transform": "@crosstype/build-tools/dist/plugin.js",
+//        "beforeEmit": true,
+//        "generators": [ "options.generator.js" ],
+//        "logLevel": "info",
+//        "cwd": "C:/Work/Projects/crosstype/crosstype/packages/core"
+//      }
     ]
   }
 }

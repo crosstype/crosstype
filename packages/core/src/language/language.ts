@@ -1,20 +1,14 @@
-import { CrossTypeLanguage } from './crosstype-language';
-import { Compiler } from '../package/compiler';
-import { Parser } from '../package/parser';
-import { SpecificKind } from './specific-kind';
+import { Compiler, LanguagePackage, Parser } from '#package';
+import { removeUndefined } from '@crosstype/system';
+import { JsonSchema, Python, TypeScript } from './imports';
 
 
 /* ****************************************************************************************************************** */
-// region: Types
+// region: Config
 /* ****************************************************************************************************************** */
 
-export interface LanguageDetail {
-  short: string
-  full: string
-  code: number
-  packageName: string
-  specificKinds: any
-}
+// Note: Keep all possible languages defined in this array
+const allLanguages = removeUndefined([ TypeScript, JsonSchema, Python ]);
 
 // endregion
 
@@ -23,72 +17,18 @@ export interface LanguageDetail {
  * Language Namespace
  * ****************************************************************************************************************** */
 
-/**
- * Supported CrossType Languages
- * Note: To preserve compatibility, names and codes should not ever change
- */
 export namespace Language {
-  /* ********************************************************* */
-  // region: Codes
-  /* ********************************************************* */
-
-  export enum Code {
-    TypeScript = 0,
-    JsonSchema = 1,
-    Python = 2,
-  }
-
-  // endregion
-
-  /* ********************************************************* */
-  // region: Languages
-  /* ********************************************************* */
-
-  const tsDetail = <const>{
-    short: 'ts',
-    full: 'typescript',
-    code: Code.TypeScript,
-    packageName: 'ctl-typescript',
-    specificKinds: SpecificKind.TS
-  }
-  export const TypeScript = new CrossTypeLanguage(tsDetail);
-  export type TypeScript = typeof tsDetail;
-
-  const pythonDetail = <const>{
-    short: 'python',
-    full: 'python',
-    code: Code.Python,
-    packageName: 'ctl-python',
-    specificKinds: SpecificKind.Python
-  }
-  export const Python = new CrossTypeLanguage(pythonDetail);
-  export type Python = typeof pythonDetail;
-
-  const jsonSchemaDetail = <const>{
-    short: 'json',
-    full: 'json-schema',
-    code: Code.JsonSchema,
-    packageName: 'ctl-json-schema',
-    specificKinds: SpecificKind.JsonSchema
-  }
-  export const JsonSchema = new CrossTypeLanguage(jsonSchemaDetail);
-  export type JsonSchema = typeof jsonSchemaDetail;
-
-  // endregion
-
   /* ********************************************************* */
   // region: Internal
   /* ********************************************************* */
 
-  /**
-   * Internal array of all languages
-   */
-  const languages = Object.freeze([ TypeScript, JsonSchema, Python ]);
+  const languages = Object.freeze(allLanguages.filter(l => l.active));
 
   /**
-   * Internal union of LanguageDetail for each language
+   * Internal union of LanguageConfig for each language
    */
-  type Languages = TypeScript | Python | JsonSchema
+  type AllLanguages = (typeof allLanguages)[number]
+  type Languages = Exclude<AllLanguages, { active: false }>
 
   // endregion
 
@@ -96,11 +36,11 @@ export namespace Language {
   // region: Properties
   /* ********************************************************* */
 
-  export type ShortNames = Languages['short']
-  export const ShortNames = languages.map(l => l.short) as ShortNames[];
+  export type ShortNames = Languages['shortName']
+  export const ShortNames = languages.map(l => l.shortName) as ShortNames[];
 
-  export type FullNames = Languages['full']
-  export const FullNames = languages.map(l => l.full) as FullNames[];
+  export type FullNames = Languages['fullName']
+  export const FullNames = languages.map(l => l.fullName) as FullNames[];
 
   export type Names = ShortNames | FullNames
   export const Names = { ...ShortNames, ...FullNames };
@@ -112,36 +52,37 @@ export namespace Language {
   // region: Utilities
   /* ********************************************************* */
 
-  export function getLanguages(): readonly CrossTypeLanguage[] {
-    return languages;
-  }
+  export const getLanguages = (): readonly LanguagePackage[] => languages;
 
   export function getCompilers(): readonly Compiler[] {
     const res: Compiler[] = [];
-    for (const language of languages)
-      if (language.package?.compiler) res.push(language.package?.compiler);
+    for (const language of getLanguages())
+      if (language.compiler) res.push(language.compiler);
 
     return Object.freeze(res);
+  }
+
+  export function getCompiler(name: Language.Names): Compiler | undefined {
+    return getLanguage(name)?.compiler;
   }
 
   export function getParsers(): readonly Parser[] {
     const res: Compiler[] = [];
-    for (const language of languages)
-      if (language.package?.parser) res.push(language.package?.parser);
+    for (const language of getLanguages())
+      if (language.parser) res.push(language.parser);
 
     return Object.freeze(res);
   }
 
-  export function findLanguage(name: Language.Names): CrossTypeLanguage | undefined
-  export function findLanguage(code: Code): CrossTypeLanguage | undefined
-  export function findLanguage(nameOrCode: Names | Code): CrossTypeLanguage | undefined {
-    const name = (typeof nameOrCode === 'string') && nameOrCode.toLowerCase();
-
-    return languages.find(l =>
-      name ? (name === l.short) || (name === l.full) :
-      l.code === nameOrCode
-    );
+  export function getParser(name: Language.Names): Parser | undefined {
+    return getLanguage(name)?.parser;
   }
+
+  export function getLanguage(name: Language.Names): LanguagePackage | undefined {
+    return getLanguages().find(l => (name === l.shortName) || (name === l.fullName));
+  }
+
+  export type GetLanguage<N extends Language.Names> = Extract<Languages, { fullName: N } | { shortName: N }>
 
   // endregion
 }

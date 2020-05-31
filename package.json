@@ -29,6 +29,9 @@
   "devDependencies": {
     "@phenomnomnominal/tsquery": "^4.0.0",
     "@crosstype/build-tools": "link:packages/build-tools",
+    "@crosstype/ctl-typescript": "link:language-packages/ctl-typescript",
+    "@crosstype/ctl-json-schema": "link:language-packages/ctl-json-schema",
+    "@crosstype/ctl-python": "link:language-packages/ctl-python",
     "@types/glob": "^7.1.1",
     "@types/is-glob": "^4.0.1",
     "@types/jest": "^24.0.23",

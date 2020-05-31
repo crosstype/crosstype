@@ -1,20 +1,6 @@
 import { Compiler } from './compiler';
 import { Parser } from './parser';
-import { CrossTypeLanguage } from '../language/crosstype-language';
-import { Language } from '../language/language';
-
-
-/* ****************************************************************************************************************** */
-// region: Types
-/* ****************************************************************************************************************** */
-
-export interface LanguagePackage {
-  language: CrossTypeLanguage
-  compiler?: Compiler
-  parser?: Parser
-}
-
-// endregion
+import { LanguagePackage } from './language-package';
 
 
 /* ****************************************************************************************************************** *
@@ -27,24 +13,23 @@ export namespace Package {
   // region: Utilities
   /* ********************************************************* */
 
-  export function isLanguagePackage(pkg: any): pkg is LanguagePackage {
-    return true;
+  export const isLanguagePackage = (pkg: any): pkg is LanguagePackage =>
+    LanguagePackage.prototype.isPrototypeOf(pkg);
+
+  export function createCompiler(parent: LanguagePackage): Compiler {
+    return {
+      parent
+    }
   }
 
-  export function createCompiler(): Compiler {
-    return <any>null;
+  export function createParser(parent: LanguagePackage): Parser {
+    return {
+      parent
+    }
   }
 
-  export function createParser(): Parser {
-    return <any>null;
-  }
-
-  export function createLanguagePackage(
-    languageCode: Language.Code,
-    compiler: Compiler | undefined,
-    parser: Parser | undefined
-  ): LanguagePackage {
-    return <any>null;
+  export function setupPackage<T extends LanguagePackage>(config: T) {
+    Object.setPrototypeOf(config, LanguagePackage);
   }
 
   // endregion

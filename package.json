@@ -7,7 +7,7 @@
     "test": "yarn workspaces run test",
     "-------------   ": "-------------",
     "clean": "yarn workspaces run clean",
-    "clean:global": "yarn run clean && rimraf .yarn.lock .yarn-cache ./**/node_modules ./**/yarn.lock ./**/yarn-error.log ./**/generator.stats.json node_modules",
+    "clean:global": "yarn run clean && rimraf yarn.lock ./**/node_modules ./**/yarn.lock ./**/yarn-error.log ./**/generator.stats.json node_modules",
     "-------------": "-------------",
     "compile:core": "yarn workspace @crosstype/core compile",
     "compile:system": "yarn workspace @crosstype/system compile",

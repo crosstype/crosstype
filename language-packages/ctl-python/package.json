@@ -9,7 +9,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf coverage dist src/generated **/*.tsbuildinfo **/generator.stats.json",
     "-------------  ": "-------------",
-    "test": "jest",
+    "test": "",
     "test:coverage": "jest --collect-coverage"
   },
   "files": [

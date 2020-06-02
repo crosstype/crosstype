@@ -24,6 +24,5 @@ export type OptionsConfig = any
 export type ParseOptions = Record<string, any>
 export type CompileOptions = Record<string, any>
 export type DefinitionCollection = any
-export type NodeArray<T> = T[]
 
 // endregion

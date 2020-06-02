@@ -15,8 +15,8 @@ export interface LanguagePackage {
   SpecificKind?: any
   optionsConfig: OptionsConfigSet
   optionsTypes: OptionsTypesSet
-  parser?: Parser
-  compiler?: Compiler
+  parser: Parser | undefined
+  compiler: Compiler | undefined
 }
 
 // endregion

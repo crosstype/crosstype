@@ -14,6 +14,8 @@ namespace CtlJsonSchema {
   export const packageName = 'ctl-python';
   export const optionsConfig = {};
   export const optionsTypes = { CompileOptions: <CompileOptions>{}, ParseOptions: <ParseOptions>{} }
+  export const parser = undefined;
+  export const compiler = <any>undefined;
 }
 
 Package.setupPackage(CtlJsonSchema);

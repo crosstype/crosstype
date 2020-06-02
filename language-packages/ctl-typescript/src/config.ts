@@ -14,6 +14,8 @@ namespace CtlTypeScript {
   export const packageName = 'ctl-typescript';
   export const optionsConfig = {};
   export const optionsTypes = { CompileOptions: <CompileOptions>{}, ParseOptions: <ParseOptions>{} }
+  export const parser = <any>undefined;
+  export const compiler = undefined;
 
   export enum SpecificKind {
     Any,

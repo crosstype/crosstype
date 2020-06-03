@@ -24,11 +24,9 @@ export namespace Language {
 
   const languages = Object.freeze(allLanguages.filter(l => l.active));
 
-  /**
-   * Internal union of LanguageConfig for each language
-   */
   type AllLanguages = (typeof allLanguages)[number]
-  type Languages = Exclude<AllLanguages, { active: false }>
+
+  export type Languages = Exclude<AllLanguages, { active: false }>
 
   // endregion
 
@@ -38,12 +36,16 @@ export namespace Language {
 
   export type ShortNames = Languages['shortName']
   export const ShortNames = languages.map(l => l.shortName) as ShortNames[];
-
   export type FullNames = Languages['fullName']
   export const FullNames = languages.map(l => l.fullName) as FullNames[];
-
   export type Names = ShortNames | FullNames
   export const Names = { ...ShortNames, ...FullNames };
+
+
+  export const CompilerLanguages = languages.filter(l => l.compiler) as LanguagePackage[];
+  export type CompilerLanguages = Exclude<Language.Languages, { compiler: undefined }>
+  export const ParserLanguages = languages.filter(l => l.compiler) as LanguagePackage[];
+  export type ParserLanguages = Exclude<Language.Languages, { parser: undefined }>
 
   // endregion
 

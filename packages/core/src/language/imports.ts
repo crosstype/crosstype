@@ -23,7 +23,7 @@ function loadPackage(fn: () => Promise<LanguagePackage>): Promise<any> {
 /* ****************************************************************************************************************** */
 // region: Language Imports
 /* ****************************************************************************************************************** */
-// We're doing some trickery here to dynamically load optional dependency types. If not found, the type will be never
+// We're doing some trickery here to dynamically load optional dependency types. If not found, the type will be never.
 
 // @ts-ignore
 const CtlTypeScript = () => import('@crosstype/ctl-typescript');

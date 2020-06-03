@@ -1,9 +1,17 @@
+/**
+ * Node Interfaces & Related types
+ *
+ * Note: This file is used by generators to determine node meta-data and aliases groups.
+ * The JSDoc annotations `@flags` and `@typeFlags` define those properties for node kind metadata.
+ */
 import {
   DecimalKind, DefinitionFlags, LinkedListFlags, ModifierFlags, NodeFlags, NodeKind, OrderKind, SignatureKind, TypeFlags
 } from './enums';
-import { CompileOptions, DefinitionCollection, NodeArray, NumberRange, SourceFileInfo } from '../types';
-import { TagMap } from './components';
+import { CompileOptions, DefinitionCollection, NumberRange } from '../types';
+import { NodeMap, NodeSet, ReadonlyNodeMap, ReadonlyNodeSet } from '#ast/components';
 import { Language } from '../language/language';
+import { CompileOptionsSet } from '../options/types';
+import { NamedNodeName, NodeOrigin } from '#ast/shared-types';
 
 
 /* ****************************************************************************************************************** */
@@ -20,25 +28,6 @@ interface OutputFile {
   compileOptions?: CompileOptions                 // Configure to override using Definition's compileOptions as a base
 }
 
-/**
- * Base shape for Origin (each language has its own)
- */
-export interface NodeOrigin {
-  language: string
-  sourceFileInfo?: SourceFileInfo
-  sourceText?: string
-  tags?: TagMap
-  /**
-   * Used by extensions to identify specific intrinsic types (ie. `undefined` and `null` in javascript would both
-   * produce a NullNode. This property can be used to determine its origin kind)
-   */
-  specificKind?: number
-
-  [k:string]: any // Additional properties allowed
-}
-
-export type NamedNodeName = string | number | SymbolLiteral
-
 // endregion
 
 
@@ -46,15 +35,18 @@ export type NamedNodeName = string | number | SymbolLiteral
 // region: Group Aliases
 /* ****************************************************************************************************************** */
 
+// TODO - Make auto generated
+
 /**
  * All valid Nodes
  */
 type AnyNode =
-  Node | ReferenceNode | StringNode | CharacterNode | Byte | RegExpNode | SymbolNode | BooleanNode | NumericNode |
+  Node | ReferenceNode | StringNode | CharacterNode | ByteNode | RegExpNode | SymbolNode | BooleanNode | NumericNode |
   StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionNode |
-  AnonymousFunctionNode | SignatureNode | ParameterNode | IterableNode | EnumNode | TypeParameterNode | TypeArgumentNode |
-  TupleNode | UnionNode | IntersectionNode | AnythingNode | NothingNode | NullNode | ModuleNode | ObjectNode |
-  ClassNode | InterfaceNode | PropertyNode | MethodNode | DefinitionNode
+  AnonymousFunctionNode | SignatureNode | ParameterNode | IterableNode | EnumNode | TypeParameterNode |
+  TypeArgumentNode | TupleNode | UnionNode | IntersectionNode | AnythingNode | NothingNode | NullNode | ModuleNode |
+  ObjectNode | ClassNode | InterfaceNode | PropertyNode | MethodNode | DefinitionNode | DateTimeLiteralNode |
+  DateLikeNode
 
 /**
  * Nodes which cannot be used in the general value position (must have a specific parent)
@@ -67,10 +59,10 @@ type NonValueNode =
  * Nodes that can be used in the general value position (can have any parent)
  */
 type ValueNode =
-  Node | ReferenceNode | StringNode | CharacterNode | Byte | RegExpNode | SymbolNode | BooleanNode | NumericNode |
+  Node | ReferenceNode | StringNode | CharacterNode | ByteNode | RegExpNode | SymbolNode | BooleanNode | NumericNode |
   StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionNode |
   AnonymousFunctionNode | IterableNode | EnumNode | TupleNode | UnionNode | IntersectionNode | AnythingNode |
-  NothingNode | NullNode | ObjectNode | PropertyNode | MethodNode | DefinitionNode
+  NothingNode | NullNode | ObjectNode | PropertyNode | MethodNode | DefinitionNode | DateTimeLiteralNode | DateLikeNode
 
 // endregion
 
@@ -81,13 +73,13 @@ type ValueNode =
 
 export interface Node {
   readonly id: number
-  readonly parent: Node | undefined
+  readonly parent: Node
   readonly flags: NodeFlags
   readonly typeFlags: TypeFlags
   readonly kind: NodeKind
   readonly origin: NodeOrigin
   readonly modifiers: ModifierFlags
-  readonly compileOptions: CompileOptions
+  readonly compileOptions: CompileOptionsSet
 
   /**
    * @returns Array of parental lineage (ordered from immediate parent to highest)
@@ -104,13 +96,19 @@ export interface Node {
   /**
    * Iterate all children, providing parent property key in which the child was found
    */
-  forEachChild<T extends Node>(this: T, fn: (child: Node, parentPropertyKey: keyof T, index?: number) => void): void
+  forEachChild<T extends Node>(cb: (child: Node, parentPropertyKey: keyof T, index?: number) => void): void
+
+  /**
+   * Walks up the parent line and returns the first match
+   * @param matcher
+   */
+  findParent<T extends Node = Node>(matcher: (node: Node) => boolean): T | undefined
 
   /**
    * Find nearest named parent node
    * @param name - If provided, will look for parent that matches name (string or regex)
    */
-  findNamedParent(name?: string | RegExp): Node | undefined
+  getNamedParent(name?: string | RegExp): Node | undefined
 
   /**
    * Get parent DefinitionNode
@@ -118,16 +116,17 @@ export interface Node {
   getDefinition(): DefinitionNode | undefined
 
   /**
-   * Get parent SourceFile (output file node)
+   * Get parent SourceFileNode (only exists during compilation, as definitions can have multiple output files)
    */
-  getSourceFile(): SourceFile | undefined
+  getSourceFile(): SourceFileNode | undefined
 
   /**
-   * @returns Array of children
+   * @returns NodeSet of children
    * @param deep - If true, deeply returns all descendants
-   * @param matcher - If provided, filters returned nodes
+   * @param matcher - If provided, filters returned nodes. If used with deep and a node does not match, its children are
+   *                  still checked.
    */
-  getChildren<T extends Node = Node>(deep?: boolean, matcher?: (node: Node) => boolean): NodeArray<T> | undefined
+  getChildren<T extends Node = Node>(deep?: boolean, matcher?: (node: Node) => boolean): NodeSet<T> | undefined
 
   /**
    * Creates a clone of the node
@@ -173,17 +172,105 @@ export interface Node {
   cleanup(): void
 }
 
+/**
+ * @flags NodeFlags.Named
+ */
 export interface NamedNode<T extends NamedNodeName = string> extends Node {
   name: T
 }
 
+/**
+ * @flags NodeFlags.CanReference
+ */
 export interface ReferenceableNamedNode<T extends NamedNodeName = string> extends NamedNode<T> {
   /**
    * Get all ReferenceNodes in collection which refer to this node
    */
-  getReferencesToThisNode(): NodeArray<ReferenceNode> | undefined
+  getReferencesToThisNode(): NodeSet<ReferenceNode> | undefined
 }
 
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: TypeFlags Bases
+/* ****************************************************************************************************************** */
+
+// TODO - Migrate this section to generated code
+
+/**
+ * @typeFlags TypeFlags.Unit
+ */
+export interface UnitType {}
+
+/**
+ * @typeFlags TypeFlags.Primitive
+ */
+export interface PrimitiveType {}
+
+/**
+ */
+export interface LiteralType {}
+
+/**
+ * @typeFlags TypeFlags.Composite
+ */
+export interface CompositeType {}
+
+/**
+ */
+export interface LiteralType {}
+
+/**
+ * @typeFlags TypeFlags.Numeric
+ */
+export interface NumericType {}
+
+/**
+ * @typeFlags TypeFlags.Module
+ */
+export interface ModuleType {}
+
+/**
+ * @typeFlags TypeFlags.Iterable
+ */
+export interface IterableType {}
+
+/**
+ * @typeFlags TypeFlags.Function
+ */
+
+export interface FunctionType {}
+
+/**
+ * @typeFlags TypeFlags.Tuple
+ */
+export interface TupleType {}
+
+/**
+ * @typeFlags TypeFlags.Object
+ */
+export interface ObjectType {}
+
+/**
+ * @typeFlags TypeFlags.Reference
+ */
+export interface ReferenceType {}
+
+/**
+ * @typeFlags TypeFlags.ObjectMember
+ */
+export interface ObjectMemberType {}
+
+/**
+ * @typeFlags TypeFlags.Enum
+ */
+export interface EnumType {}
+
+/**
+ * @typeFlags TypeFlags.Abstract
+ */
+export interface AbstractType {}
 
 // endregion
 
@@ -192,15 +279,20 @@ export interface ReferenceableNamedNode<T extends NamedNodeName = string> extend
 // region: Definition Node
 /* ****************************************************************************************************************** */
 
+/**
+ * @flags NodeFlags.Definition
+ */
 export interface DefinitionNode extends ReferenceableNamedNode {
-  kind: NodeKind.Definition
-  definitionFlags: DefinitionFlags
+  readonly kind: NodeKind.Definition
+  readonly definitionFlags: DefinitionFlags     // getter, then remove this note
+  readonly collection?: DefinitionCollection
   outputs: OutputFile[]
   name: string
-  declarationTypes: NodeArray<ValueNode>
+  declarationTypes: NodeSet<ValueNode>
   exported?: boolean
-  typeArguments?: NodeArray<TypeArgumentNode>
-  collection?: DefinitionCollection
+  typeArguments?: NodeSet<TypeArgumentNode>
+
+  getParentCollection(): DefinitionCollection
 }
 
 // endregion
@@ -210,24 +302,24 @@ export interface DefinitionNode extends ReferenceableNamedNode {
 // region: Module Nodes
 /* ****************************************************************************************************************** */
 
-export type ModuleNode = Namespace | SourceFile
+export type ModuleNode = NamespaceNode | SourceFileNode
 
 interface ModuleBase extends Node {
   name: string
   exported?: boolean
-  definitions: NodeArray<DefinitionNode>
-  namespaces: NodeArray<Namespace>
+  definitions?: NodeMap<DefinitionNode>
+  namespaces?: NodeMap<NamespaceNode>
 }
 
-export interface Namespace extends ModuleBase {
-  kind: NodeKind.Namespace
+export interface NamespaceNode extends ModuleBase, ModuleType {
+  readonly kind: NodeKind.Namespace
   exported?: boolean
 }
 
-export interface SourceFile extends ModuleBase {
-  kind: NodeKind.SourceFile
-  fileName: string
+export interface SourceFileNode extends ModuleBase, ModuleType {
+  readonly kind: NodeKind.SourceFile
   readonly language: Language.FullNames
+  fileName: string
 }
 
 // endregion
@@ -240,43 +332,48 @@ export interface SourceFile extends ModuleBase {
 /**
  * @see https://en.wikipedia.org/wiki/String_(computer_science)
  */
-export interface StringNode extends Node {
-  kind: NodeKind.String
+export interface StringNode extends Node, PrimitiveType {
+  readonly kind: NodeKind.String
 }
 
 /**
+ * When length specified, assumes fixed length array of characters, otherwise, assumes single character
  * @see https://en.wikipedia.org/wiki/Character_(computing)
  */
-export interface CharacterNode extends Node, VariableBitLength {
-  kind: NodeKind.Character
+export interface CharacterNode extends Node, VariableBitLength, PrimitiveType {
+  readonly kind: NodeKind.Character
+  length: number | NumberRange
 }
 
 /**
+ * When length specified, assumes fixed length array of characters, otherwise, assumes single character
  * @see https://en.wikipedia.org/wiki/Byte
  */
-export interface Byte extends Node, VariableBitLength {
-  kind: NodeKind.Byte
+export interface ByteNode extends Node, VariableBitLength, PrimitiveType {
+  readonly kind: NodeKind.Byte
+  length: number | NumberRange
+  signed: boolean
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Regular_expression
  */
-export interface RegExpNode extends Node {
-  kind: NodeKind.RegExp
+export interface RegExpNode extends Node, PrimitiveType {
+  readonly kind: NodeKind.RegExp
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Symbol_(programming)
  */
-export interface SymbolNode extends Node {
-  kind: NodeKind.Symbol
+export interface SymbolNode extends Node, PrimitiveType {
+  readonly kind: NodeKind.Symbol
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Boolean_data_type
  */
-export interface BooleanNode extends Node {
-  kind: NodeKind.Boolean
+export interface BooleanNode extends Node, PrimitiveType {
+  readonly kind: NodeKind.Boolean
 }
 
 
@@ -296,8 +393,8 @@ interface NumberNodeBase extends Node, VariableBitLength {}
  * Real whole number
  * @see https://en.wikipedia.org/wiki/Integer_(computer_science)
  */
-export interface IntegerNode extends NumberNodeBase {
-  kind: NodeKind.Integer
+export interface IntegerNode extends NumberNodeBase, PrimitiveType, NumericType {
+  readonly kind: NodeKind.Integer
 }
 
 /**
@@ -306,8 +403,8 @@ export interface IntegerNode extends NumberNodeBase {
  * @see https://en.wikipedia.org/wiki/Decimal_floating_point
  * @see https://en.wikipedia.org/wiki/Fixed-point_arithmetic
  */
-export interface DecimalNumberNode extends NumberNodeBase {
-  kind: NodeKind.DecimalNumber
+export interface DecimalNumberNode extends NumberNodeBase, PrimitiveType, NumericType {
+  readonly kind: NodeKind.DecimalNumber
   decimalKind: DecimalKind
   /**
    * Optionally specify decimal precision
@@ -319,22 +416,22 @@ export interface DecimalNumberNode extends NumberNodeBase {
 /**
  * @see https://en.wikipedia.org/wiki/Complex_number
  */
-export interface ComplexNumberNode extends NumberNodeBase {
-  kind: NodeKind.ComplexNumber
+export interface ComplexNumberNode extends NumberNodeBase, PrimitiveType, NumericType {
+  readonly kind: NodeKind.ComplexNumber
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/NaN
  */
-export interface NotANumberNode extends Node {
-  kind: NodeKind.NotANumber
+export interface NotANumberNode extends Node, PrimitiveType, NumericType {
+  readonly kind: NodeKind.NotANumber
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Infinity
  */
-export interface InfinityNode extends Node {
-  kind: NodeKind.Infinity
+export interface InfinityNode extends Node, PrimitiveType, NumericType {
+  readonly kind: NodeKind.Infinity
   negative: boolean
 }
 
@@ -348,41 +445,51 @@ export interface InfinityNode extends Node {
 /**
  * Unit type containing an exact string value
  */
-export interface StringLiteral extends Node {
-  kind: NodeKind.StringLiteral
+export interface StringLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.StringLiteral
   value: string
 }
 
 /**
  * Unit type containing: true
  */
-export interface TrueLiteral extends Node {
-  kind: NodeKind.TrueLiteral
+export interface TrueLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.TrueLiteral
   value: true
 }
 
 /**
  * Unit type containing: false
  */
-export interface FalseLiteral extends Node {
-  kind: NodeKind.FalseLiteral
+export interface FalseLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.FalseLiteral
   value: false
 }
 
 /**
  * Unit type containing an exact Regular Expression
  */
-export interface RegExpLiteral extends Node {
-  kind: NodeKind.RegExpLiteral
+export interface RegExpLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.RegExpLiteral
   expression: string
   regexFlags?: string
 }
 
 /**
+ * Format conforms to ISO 8601
+ * @see https://en.wikipedia.org/wiki/ISO_8601
+ */
+export interface DateTimeLiteralNode extends Node {
+  kind: NodeKind.DateTimeLiteral
+  format: string,
+  value: string
+}
+
+/**
  * Unit type containing an exact symbol (may or may not be always unique - see notes for alwaysUnique property)
  */
-export interface SymbolLiteral extends Node {
-  kind: NodeKind.SymbolLiteral
+export interface SymbolLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.SymbolLiteral
   value?: string | number
   // Is symbol unique regardless of its value?
   // In languages like Ruby, there a single symbol per name. In that case, alwaysUnique is false.
@@ -403,16 +510,16 @@ export type NumericLiteral = IntegerLiteral | DecimalLiteral | ImaginaryNumberLi
 /**
  * Unit type containing exact integer value
  */
-export interface IntegerLiteral extends Node {
-  kind: NodeKind.IntegerLiteral
+export interface IntegerLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.IntegerLiteral
   value: string
 }
 
 /**
  * Unit type containing exact decimal value
  */
-export interface DecimalLiteral extends Node {
-  kind: NodeKind.DecimalLiteral
+export interface DecimalLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.DecimalLiteral
   value: string
 }
 
@@ -420,8 +527,8 @@ export interface DecimalLiteral extends Node {
  * Unit type containing exact imaginary number value
  * @see https://docs.python.org/2.0/ref/imaginary.html
  */
-export interface ImaginaryNumberLiteral extends Node {
-  kind: NodeKind.ImaginaryNumberLiteral
+export interface ImaginaryNumberLiteral extends Node, LiteralType {
+  readonly kind: NodeKind.ImaginaryNumberLiteral
   value: string
 }
 
@@ -445,63 +552,63 @@ interface IterableNodeBase extends Node {
 /**
  * Used if no existing iterable node fits
  */
-export interface GenericIterable extends IterableNodeBase {
-  kind: NodeKind.GenericIterable
+export interface GenericIterable extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.GenericIterable
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Array_data_type
  */
-export interface ArrayNode extends IterableNodeBase {
-  kind: NodeKind.Array
+export interface ArrayNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.Array
+  readonly orderBy: OrderKind.Index
+  readonly indexType: IntegerNode
   resizable: boolean
-  orderBy: OrderKind.Index
-  indexType: IntegerNode
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Associative_array
  */
-export interface MapNode extends IterableNodeBase {
-  kind: NodeKind.Map
-  resizable: true
-  orderBy: OrderKind.Index
-  indexType: ValueNode
+export interface MapNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.Map
+  readonly resizable: true
+  readonly orderKind: OrderKind.Index
+  readonly indexType: ValueNode
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Set_(abstract_data_type)
  */
-export interface MultiSetNode extends IterableNodeBase {
-  kind: NodeKind.MultiSet
-  uniqueMembers: false
+export interface MultiSetNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.MultiSet
+  readonly uniqueMembers: false
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Set_(abstract_data_type)
  */
-export interface SetNode extends IterableNodeBase {
-  kind: NodeKind.Set
-  uniqueMembers: true
+export interface SetNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.Set
+  readonly uniqueMembers: true
 }
 
 /**
  * Essentially an Array that is always resizable
  * @see https://www.quora.com/What-is-the-difference-between-an-ARRAY-and-a-LIST
  */
-export interface ListNode extends IterableNodeBase {
-  kind: NodeKind.List
-  resizable: true
-  orderKind: OrderKind.Index
-  indexType: IntegerNode
+export interface ListNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.List
+  readonly resizable: true
+  readonly orderKind: OrderKind.Index
+  readonly indexType: IntegerNode
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Linked_list
  */
-export interface LinkedListNode extends IterableNodeBase {
-  kind: NodeKind.LinkedList
-  orderBy: OrderKind.Link
+export interface LinkedListNode extends IterableNodeBase, IterableType, CompositeType {
+  readonly kind: NodeKind.LinkedList
+  readonly orderKind: OrderKind.Link
   linkedListFlags: LinkedListFlags
 }
 
@@ -513,24 +620,25 @@ export interface LinkedListNode extends IterableNodeBase {
 /* ****************************************************************************************************************** */
 
 /**
- * Enumerated Type (tagged union)
+ * Enumerated Type
  * @see https://en.wikipedia.org/wiki/Enumerated_type
  * Note: ADA allows specifying bit length for enum
  */
-export interface EnumNode extends Node, VariableBitLength {
-  kind: NodeKind.Enum
-  members: NodeArray<EnumMemberNode>
+export interface EnumNode extends Node, VariableBitLength, EnumType {
+  readonly kind: NodeKind.Enum
+  members: NodeSet<EnumMemberNode>
 
-  keys: string[] | undefined                      // Getter only (reads from members)
-  values: (StringLiteral | RealNumberLiteral)[]   // Getter only (reads from members)
+  readonly keys: string[] | undefined                      // Getter only (reads from members)
+  readonly values: (StringLiteral | RealNumberLiteral)[]   // Getter only (reads from members)
 }
 
 /**
  * Member of Enumerated Type (Always has value, may or may not have key depending on the language)
  * @see https://en.wikipedia.org/wiki/Enumerated_type
+ * @flags TypeFlags.Nested
  */
 export interface EnumMemberNode extends Node {
-  kind: NodeKind.EnumMember
+  readonly kind: NodeKind.EnumMember
   key?: string
   value: StringLiteral | RealNumberLiteral
 }
@@ -547,9 +655,9 @@ export interface EnumMemberNode extends Node {
  * A specific record of types in sequence
  * @see https://en.wikipedia.org/wiki/Record_(computer_science)
  */
-export interface TupleNode extends Node {
-  kind: NodeKind.Tuple
-  elements: NodeArray<ValueNode>
+export interface TupleNode extends Node, TupleType {
+  readonly kind: NodeKind.Tuple
+  elements?: NodeSet<ValueNode>
   hasRestElement?: boolean
 }
 
@@ -565,14 +673,12 @@ export type ObjectLikeNode = ObjectNode | ClassNode | InterfaceNode
 export type ClassLikeNode = ClassNode | InterfaceNode
 
 export interface ObjectNodeBase extends Node {
-  members: NodeArray<ValueNode>
-  additionalProperties?: {
-    indexType: StringNode | RealNumberNode | SymbolNode | NodeArray<StringLiteral | RealNumberLiteral | SymbolLiteral>
-    valueType: ValueNode
-  }
+  members: NodeMap<ObjectMember>
+  indexType?: StringNode | RealNumberNode | SymbolNode | NodeSet<StringLiteral | RealNumberLiteral | SymbolLiteral>
+  valueType?: ValueNode
 
-  properties: NodeArray<ValueNode>      // getter proxy (filtered members)
-  methods: NodeArray<ValueNode>         // getter proxy (filtered members)
+  readonly properties?: ReadonlyNodeMap<PropertyNode>    // getter proxy (filtered members)
+  readonly methods?: ReadonlyNodeMap<MethodNode>         // getter proxy (filtered members)
 
   /**
    * Get property or method by name
@@ -581,26 +687,26 @@ export interface ObjectNodeBase extends Node {
   getMember(name: ObjectNodeKey): ValueNode | undefined
 }
 
-export interface ClassLikeNodeBase extends ReferenceableNamedNode {
-  heritage?: NodeArray<ReferenceNode>                             // References to Class or Interface
-  constructSignatures?: NodeArray<SignatureNode | ReferenceNode>  // Reference to heritage signature if none present
-  typeParameters?: NodeArray<TypeParameterNode>
+export interface ClassLikeNodeBase extends ObjectNodeBase, ReferenceableNamedNode {
+  readonly heritage?: ReadonlyNodeSet<ReferenceNode>            // References to Class or Interface
+  constructSignatures?: NodeSet<SignatureNode | ReferenceNode>  // Reference to heritage signature if none present
+  typeParameters?: NodeMap<TypeParameterNode>
 }
 
 /**
  * Non-class based Object-literal type
  * @see https://en.wikipedia.org/wiki/Object_type_(object-oriented_programming)
  */
-export interface ObjectNode extends ObjectNodeBase {
-  kind: NodeKind.Object
+export interface ObjectNode extends ObjectNodeBase, ObjectType, CompositeType {
+  readonly kind: NodeKind.Object
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Class_(computer_programming)
  */
-export interface ClassNode extends ClassLikeNodeBase {
-  parent: DefinitionNode | undefined
-  kind: NodeKind.Class
+export interface ClassNode extends ClassLikeNodeBase, ObjectType, CompositeType {
+  readonly parent: DefinitionNode
+  readonly kind: NodeKind.Class
 }
 
 /**
@@ -609,10 +715,10 @@ export interface ClassNode extends ClassLikeNodeBase {
  * @see https://www.iitk.ac.in/esc101/05Aug/tutorial/java/concepts/interface.html
  * @see https://www.typescriptlang.org/docs/handbook/interfaces.html
  */
-export interface InterfaceNode extends ClassLikeNodeBase {
-  parent: DefinitionNode | undefined
-  kind: NodeKind.Interface
-  callSignatures?: NodeArray<SignatureNode>
+export interface InterfaceNode extends ClassLikeNodeBase, ObjectType, CompositeType {
+  readonly parent: DefinitionNode
+  readonly kind: NodeKind.Interface
+  callSignatures?: NodeSet<SignatureNode>
 }
 
 // endregion
@@ -622,6 +728,8 @@ export interface InterfaceNode extends ClassLikeNodeBase {
 // region: Object-Member Nodes
 /* ****************************************************************************************************************** */
 
+export type ObjectMember = PropertyNode | MethodNode
+
 export interface ObjectMemberBase extends ReferenceableNamedNode<ObjectNodeKey> {
   optional: boolean
 }
@@ -629,9 +737,10 @@ export interface ObjectMemberBase extends ReferenceableNamedNode<ObjectNodeKey> 
 /**
  * Property of an ObjectLikeNode
  * @see https://en.wikipedia.org/wiki/Property_(programming)
+ * @flags NodeFlags.Nested
  */
-export interface PropertyNode extends ObjectMemberBase {
-  kind: NodeKind.Property
+export interface PropertyNode extends ObjectMemberBase, ObjectMemberType {
+  readonly kind: NodeKind.Property
   value: ValueNode
   /**
    * Indicates property is implemented as accessors (able to determine getter/setter by ReadOnly/WriteOnly modifiers)
@@ -642,11 +751,42 @@ export interface PropertyNode extends ObjectMemberBase {
 /**
  * Method of an ObjectLikeNode
  * @see https://en.wikipedia.org/wiki/Method_(computer_programming)
+ * @flags NodeFlags.Nested
  */
-export interface MethodNode extends ObjectMemberBase {
-  kind: NodeKind.Method
-  signatures: NodeArray<SignatureNode>
+export interface MethodNode extends ObjectMemberBase, ObjectMemberType {
+  readonly kind: NodeKind.Method
+  signatures: NodeSet<SignatureNode>
 }
+
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: Abstract Data Types
+/* ****************************************************************************************************************** */
+
+export type DateLikeNode = DateNode | DateTimeNode
+
+export interface DateBase extends Node {
+  format?: string
+}
+
+/**
+ * Date (optionally specify ISO 8601 format)
+ * @see https://en.wikipedia.org/wiki/ISO_8601
+ */
+export interface DateNode extends DateBase, AbstractType {
+  kind: NodeKind.Date
+}
+
+/**
+ * DateTime (optionally specify ISO 8601 format)
+ * @see https://en.wikipedia.org/wiki/ISO_8601
+ */
+export interface DateTimeNode extends DateBase, AbstractType {
+  kind: NodeKind.DateTime
+}
+
 
 // endregion
 
@@ -659,37 +799,41 @@ export interface MethodNode extends ObjectMemberBase {
  * Named function, allows multiple (overload) signatures
  * @see https://en.wikipedia.org/wiki/Subroutine
  */
-export interface FunctionNode extends NamedNode {
-  kind: NodeKind.Function
-  signatures: NodeArray<SignatureNode>
+export interface FunctionNode extends NamedNode, FunctionType {
+  readonly kind: NodeKind.Function
+  signatures: NodeSet<SignatureNode>
 }
 
 /**
  * Anonymous Function
  * @see https://en.wikipedia.org/wiki/Anonymous_function
  */
-export interface AnonymousFunctionNode extends Node {
+export interface AnonymousFunctionNode extends Node, FunctionType {
+  readonly kind: NodeKind.AnonymousFunction
   name?: string                         // Name is allowed for anonymous functions in some languages (like JS)
-  kind: NodeKind.AnonymousFunction
   signature: SignatureNode
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Type_signature
+ * @flags NodeFlags.Nested
  */
 export interface SignatureNode extends Node {
-  kind: NodeKind.Signature
+  readonly kind: NodeKind.Signature
   signatureKind: SignatureKind
+  isAsync?: boolean
+  isGenerator?: boolean
   returnType: ValueNode
-  parameters?: NodeArray<ParameterNode>
-  typeParameters?: NodeArray<TypeParameterNode>
+  parameters?: NodeMap<ParameterNode>
+  typeParameters?: NodeMap<TypeParameterNode>
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Parameter_(computer_programming)
+ * @flags NodeFlags.Nested
  */
 export interface ParameterNode extends NamedNode {
-  kind: NodeKind.Parameter
+  readonly kind: NodeKind.Parameter
   name: string
   type?: ValueNode
   initializer?: ValueNode      // Must be unit type (literals, empty, etc)
@@ -709,9 +853,10 @@ export interface ParameterNode extends NamedNode {
 
 /**
  * @see https://en.wikipedia.org/wiki/TypeParameter
+ * @flags NodeFlags.Nested
  */
 export interface TypeParameterNode extends ReferenceableNamedNode {
-  kind: NodeKind.TypeParameter
+  readonly kind: NodeKind.TypeParameter
   name: string
   constraint?: ValueNode
   default?: ValueNode
@@ -720,12 +865,13 @@ export interface TypeParameterNode extends ReferenceableNamedNode {
 /**
  * Argument which corresponds to a TypeParameter
  * @see https://en.wikipedia.org/wiki/TypeParameter
+ * @flags NodeFlags.Nested
  */
 export interface TypeArgumentNode extends NamedNode {
-  kind: NodeKind.TypeArgument
-  name: string            // Getter to _association.name
-  type: ValueNode
+  readonly kind: NodeKind.TypeArgument
   readonly _association: ParameterNode
+  name: string            // Getter to _association.name (remove this note & _association from interface)
+  type: ValueNode
 }
 
 // endregion
@@ -735,27 +881,26 @@ export interface TypeArgumentNode extends NamedNode {
 // region: Set Operation Nodes
 /* ****************************************************************************************************************** */
 
-interface SetOperationBase extends Node {
-  members: NodeArray<ValueNode>
-  /**
-   * Some languages may have custom methodology for joining types. When set, this value represents the final resolved
-   * type for the members. If not present, common logic should be applied on members
-   */
-  resolvedType?: ValueNode
-}
-
 /**
  * @see https://en.wikipedia.org/wiki/Union_type
+ * @see https://en.wikipedia.org/wiki/Tagged_union
  */
-export interface UnionNode extends SetOperationBase {
-  kind: NodeKind.Union
+export interface UnionNode extends Node, CompositeType {
+  readonly kind: NodeKind.Union
+  members: NodeSet<ValueNode>
+  discriminants?: ObjectMember['name']
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Intersection_type
  */
-export interface IntersectionNode extends SetOperationBase {
-  kind: NodeKind.Intersection
+export interface IntersectionNode extends Node, CompositeType {
+  readonly kind: NodeKind.Intersection
+  /**
+   * Some languages may have custom methodology for joining types. When set, this value represents the final resolved
+   * type for the members. If not present, common logic should be applied on members
+   */
+  resolvedType?: ValueNode
 }
 
 // endregion
@@ -770,7 +915,7 @@ export interface IntersectionNode extends SetOperationBase {
  * @see https://en.wikipedia.org/wiki/Top_type
  */
 export interface AnythingNode extends Node {
-  kind: NodeKind.Anything
+  readonly kind: NodeKind.Anything
 }
 
 /**
@@ -778,15 +923,15 @@ export interface AnythingNode extends Node {
  * @see https://en.wikipedia.org/wiki/Bottom_type
  */
 export interface NothingNode extends Node {
-  kind: NodeKind.Nothing
+  readonly kind: NodeKind.Nothing
 }
 
 /**
  * @see https://en.wikipedia.org/wiki/Null_pointer
  * Specific type can be determined in specificKind (useful in cases like JS which has null and undefined)
  */
-export interface NullNode extends Node {
-  kind: NodeKind.Null
+export interface NullNode extends Node, UnitType {
+  readonly kind: NodeKind.Null
 }
 
 // endregion
@@ -798,13 +943,17 @@ export interface NullNode extends Node {
 
 /**
  * Reference to ReferenceableNamedNode (definition, object property, etc)
+ * Note: To change target, use the replace() method
  * @see https://en.wikipedia.org/wiki/Reference_(computer_science)
  */
-export interface ReferenceNode extends Node {
-  kind: NodeKind.Reference
-  targetBase: DefinitionNode
+export interface ReferenceNode extends Node, ReferenceType {
+  readonly kind: NodeKind.Reference
+  targetBase: DefinitionNode        // Make these two private
   path: NamedNodeName[]
-  target: ValueNode
+  /**
+   * @notChild
+   */
+  target: ValueNode                 // getter / setter here which updates the private values
 }
 
 // endregion

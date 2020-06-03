@@ -13,21 +13,19 @@ export enum TypeFlags {
   /* Classification */
   Unit = 1 << 1,
   Primitive = 1 << 2,
-  Composite = 1 << 3,
-
-  /* Additional Detail */
-  Named = 1 << 4,             // Node has name property
-  Specific = 1 << 5,          // Has Language-specific node kind information in origin
+  Composite = 1 << 3,         // see: https://en.wikipedia.org/wiki/Data_type#Composite_types
+  Abstract = 1 << 4,
 
   /* Type Grouping */
-  Literal = 1 << 6,
-  Numeric = 1 << 7,
-  Module = 1 << 8,
-  Iterable = 1 << 9,
-  Function = 1 << 10,
-  Tuple = 1 << 11,
-  Object = 1 << 12,
-  Reference = 1 << 13,
+  Literal = 1 << 5,
+  Numeric = 1 << 6,
+  Module = 1 << 7,
+  Iterable = 1 << 8,
+  Function = 1 << 9,
+  Tuple = 1 << 10,
+  Object = 1 << 11,
+  Reference = 1 << 12,
+  Enum = 1 << 13,
   ObjectMember = 1 << 29,     // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
 }
 
@@ -40,7 +38,6 @@ export enum ModifierFlags {
   Private = 1 << 4,
   Protected = 1 << 5,
   Internal = 1 << 6,
-  Async = 1 << 7,
   Unpublished = 1 << 29,      // Indicates unpublished in the public API scope - Example, TypeScript parser may have
                               // an option to add this modifier for items tagged with the JSDoc @internal tag
                               // (see: https://martinfowler.com/bliki/PublishedInterface.html)
@@ -49,8 +46,10 @@ export enum ModifierFlags {
 export enum NodeFlags {
   None = 0,
 
-  Named = 1 << 0,
-  CanReference = 1 << 1,
+  Named = 1 << 0,             // Node has name property
+  Specific = 1 << 1,          // Has Language-specific node kind information in origin
+  CanReference = 1 << 2,
+  Definition = 1 << 3,
   Nested = 1 << 29,
 }
 
@@ -109,11 +108,16 @@ export enum NodeKind {
   FalseLiteral,
   RegExpLiteral,
   SymbolLiteral,
+  DateTimeLiteral,
 
   /* Numeric Literals */
   IntegerLiteral,
   DecimalLiteral,
   ImaginaryNumberLiteral,
+
+  /* Abstract Data Types */
+  Date,
+  DateTime,
 
   /* Function-Related */
   Function,
@@ -150,7 +154,7 @@ export enum NodeKind {
   Nothing,
   Null,
 
-  /* Namespace */
+  /* Module */
   Namespace,
   SourceFile,
 

@@ -1,4 +1,4 @@
-import { SourceFileInfo } from '../types';
+import { CompileOptions, SourceFileInfo } from '../types';
 import { TagMap } from '#ast/components';
 import { SymbolLiteral } from '#ast/node-types';
 
@@ -24,6 +24,12 @@ export interface NodeOrigin {
   [k: string]: any // Additional properties allowed
 }
 
-export type NamedNodeName = string | number | SymbolLiteral
+export type NodeIndex = string | number | SymbolLiteral
+
+export interface OutputFile {
+  fileName: string,
+  language: string,
+  compileOptions?: CompileOptions                 // Configure to override using Definition's compileOptions as a base
+}
 
 // endregion

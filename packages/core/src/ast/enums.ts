@@ -11,22 +11,29 @@ export enum TypeFlags {
   None = 0,
 
   /* Classification */
-  Unit = 1 << 1,
-  Primitive = 1 << 2,
-  Composite = 1 << 3,         // see: https://en.wikipedia.org/wiki/Data_type#Composite_types
-  Abstract = 1 << 4,
+  Unit = 1 << 0,
+  Primitive = 1 << 1,
+  Composite = 1 << 2,         // see: https://en.wikipedia.org/wiki/Data_type#Composite_types
+  Abstract = 1 << 3,
 
   /* Type Grouping */
-  Literal = 1 << 5,
-  Numeric = 1 << 6,
-  Module = 1 << 7,
-  Iterable = 1 << 8,
-  Function = 1 << 9,
-  Tuple = 1 << 10,
-  Object = 1 << 11,
-  Reference = 1 << 12,
-  Enum = 1 << 13,
-  ObjectMember = 1 << 29,     // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
+  Literal = 1 << 4,
+  Numeric = 1 << 5,
+  Module = 1 << 6,
+  Iterable = 1 << 7,
+  Function = 1 << 8,
+  Tuple = 1 << 9,
+  Object = 1 << 10,
+  Class = 1 << 11,
+  Interface = 1 << 12,
+  Reference = 1 << 13,
+  Enum = 1 << 14,
+  Property = 1 << 15,
+  Method = 1 << 29,           // Note: Keep last item value: 29 as a marker (29 is the maximum value v8 allows)
+
+  ObjectLike = Object | Class | Interface,
+  ClassLike = Class | Interface,
+  ObjectLikeMember = Property | Method,
 }
 
 export enum ModifierFlags {
@@ -48,7 +55,7 @@ export enum NodeFlags {
 
   Named = 1 << 0,             // Node has name property
   Specific = 1 << 1,          // Has Language-specific node kind information in origin
-  CanReference = 1 << 2,
+  Declaration = 1 << 2,
   Definition = 1 << 3,
   Nested = 1 << 29,
 }
@@ -61,9 +68,10 @@ export enum DefinitionFlags {
   Variable = 1 << 1,
   Class = 1 << 2,
   Interface = 1 << 3,
+  Type = 1 << 4,
 
   /* Modifiers */
-  HasMultipleDeclarations = 1 << 0,
+  HasMultipleDeclarations = 1 << 5,
   Parameterized = 1 << 29       // Instance of a generic with supplied type-arguments (combined with Class or Interface)
 }
 
@@ -84,7 +92,7 @@ export enum LinkedListFlags {
 /* ****************************************************************************************************************** */
 
 export enum NodeKind {
-  /* ReferenceNode */
+  /* Reference */
   Reference,
 
   /* Non-Numeric Primitives */
@@ -120,7 +128,7 @@ export enum NodeKind {
   DateTime,
 
   /* Function-Related */
-  Function,
+  FunctionDeclaration,
   AnonymousFunction,
   Signature,
   Parameter,
@@ -135,12 +143,16 @@ export enum NodeKind {
   LinkedList,
 
   /* Enum-Related */
-  Enum,
-  EnumMember,
+  EnumDeclaration,
+  EnumMemberDeclaration,
 
   /* TypeParameter-Related */
-  TypeParameter,
+  TypeParameterDeclaration,
   TypeArgument,
+
+  /* Other Declarations */
+  TypeDeclaration,
+  VariableDeclaration,
 
   /* Tuple */
   Tuple,
@@ -160,12 +172,13 @@ export enum NodeKind {
 
   /* Object-Like */
   Object,
-  Class,
-  Interface,
+  ClassDeclaration,
+  AnonymousClass,
+  InterfaceDeclaration,
 
-  /* Object-Member */
-  Property,
-  Method,
+  /* Object-Like Member */
+  PropertyDeclaration,
+  MethodDeclaration,
 
   /* Definition */
   Definition

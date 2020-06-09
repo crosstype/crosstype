@@ -13,8 +13,11 @@
       "#ast": [ "ast" ],
       "#ast/*": [ "ast/*" ],
       "#language": [ "language" ],
+      "#language/*": [ "language/*" ],
       "#options": [ "options" ],
+      "#options/*": [ "options/*" ],
       "#package": [ "package" ],
+      "#package/*": [ "package/*" ]
     },
 
     "plugins": [

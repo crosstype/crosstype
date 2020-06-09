@@ -1,12 +1,13 @@
 import { NodeKind } from '#ast/enums';
 import {
-  AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, ByteNode, CharacterNode, ClassNode, ComplexNumberNode,
-  DateNode, DateTimeLiteralNode, DateTimeNode, DecimalLiteral, DecimalNumberNode, DefinitionNode, EnumMemberNode,
-  EnumNode, FalseLiteral, FunctionNode, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral,
-  IntegerNode, InterfaceNode, IntersectionNode, LinkedListNode, ListNode, MapNode, MethodNode, MultiSetNode,
-  NamespaceNode, NotANumberNode, NothingNode, NullNode, ObjectNode, ParameterNode, PropertyNode, ReferenceNode,
-  RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode, SymbolLiteral,
-  SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode, TypeParameterNode, UnionNode
+  AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, ByteNode, CharacterNode,
+  ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNumberNode,
+  DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable,
+  ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode,
+  LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, NotANumberNode, NothingNode,
+  NullNode, ObjectNode, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode,
+  SignatureNode, SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
+  TypeArgumentNode, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 
 // TODO - Make this auto-generated using `node-types.ts` (Anything with kind specified gets an entry)
@@ -40,7 +41,7 @@ export type NodeForKind<K extends NodeKind> =
   K extends NodeKind.IntegerLiteral ? IntegerLiteral :
   K extends NodeKind.DecimalLiteral ? DecimalLiteral :
   K extends NodeKind.ImaginaryNumberLiteral ? ImaginaryNumberLiteral :
-  K extends NodeKind.Function ? FunctionNode :
+  K extends NodeKind.FunctionDeclaration ? FunctionDeclaration :
   K extends NodeKind.AnonymousFunction ? AnonymousFunctionNode :
   K extends NodeKind.Signature ? SignatureNode :
   K extends NodeKind.Parameter ? ParameterNode :
@@ -51,9 +52,9 @@ export type NodeForKind<K extends NodeKind> =
   K extends NodeKind.Map ? MapNode :
   K extends NodeKind.List ? ListNode :
   K extends NodeKind.LinkedList ? LinkedListNode :
-  K extends NodeKind.Enum ? EnumNode :
-  K extends NodeKind.EnumMember ? EnumMemberNode :
-  K extends NodeKind.TypeParameter ? TypeParameterNode :
+  K extends NodeKind.EnumDeclaration ? EnumDeclaration :
+  K extends NodeKind.EnumMemberDeclaration ? EnumMemberDeclaration :
+  K extends NodeKind.TypeParameterDeclaration ? TypeParameterDeclaration :
   K extends NodeKind.TypeArgument ? TypeArgumentNode :
   K extends NodeKind.Tuple ? TupleNode :
   K extends NodeKind.Union ? UnionNode :
@@ -64,13 +65,15 @@ export type NodeForKind<K extends NodeKind> =
   K extends NodeKind.Namespace ? NamespaceNode :
   K extends NodeKind.Date ? DateNode :
   K extends NodeKind.DateTime ? DateTimeNode :
-  K extends NodeKind.DateTimeLiteral ? DateTimeLiteralNode :
+  K extends NodeKind.DateTimeLiteral ? DateTimeLiteral :
   K extends NodeKind.SourceFile ? SourceFileNode :
   K extends NodeKind.Object ? ObjectNode :
-  K extends NodeKind.Class ? ClassNode :
-  K extends NodeKind.Interface ? InterfaceNode :
-  K extends NodeKind.Property ? PropertyNode :
-  K extends NodeKind.Method ? MethodNode :
+  K extends NodeKind.VariableDeclaration ? VariableDeclaration :
+  K extends NodeKind.AnonymousClass ? AnonymousClass :
+  K extends NodeKind.ClassDeclaration ? ClassDeclaration :
+  K extends NodeKind.InterfaceDeclaration ? InterfaceDeclaration :
+  K extends NodeKind.PropertyDeclaration ? PropertyDeclaration :
+  K extends NodeKind.MethodDeclaration ? MethodDeclaration :
   K extends NodeKind.Definition ? DefinitionNode : never;
 
 // endregion

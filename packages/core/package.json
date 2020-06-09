@@ -10,7 +10,7 @@
     "generators": "yarn workspace @crosstype/build-tools run generate-files",
     "clean": "rimraf coverage dist src/generated **/*.tsbuildinfo **/generator.stats.json",
     "-------------  ": "-------------",
-    "test": "",
+    "test": "echo not yet implemented",
     "test:coverage": "jest --collect-coverage"
   },
   "files": [

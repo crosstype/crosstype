@@ -10,7 +10,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf coverage dist *.tsbuildinfo",
     "-------------": "-------------",
-    "test": "",
+    "test": "echo not yet implemented",
     "test:coverage": "jest --collect-coverage"
   },
   "author": {

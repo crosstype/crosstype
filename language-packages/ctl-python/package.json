@@ -32,7 +32,7 @@
     "python"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.x"
   },
   "dependencies": {
     "@crosstype/system": "~0.0.0",

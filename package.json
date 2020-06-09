@@ -51,8 +51,8 @@
     "typescript-transform-paths": "^1.1.14"
   },
   "engines": {
-    "node": ">= 8.x",
-    "npm": ">= 3.x",
+    "node": ">=10.x",
+    "npm": ">=3.x",
     "yarn": ">=0.27.5 || >=1.0.0-20170811"
   },
   "workspaces": [

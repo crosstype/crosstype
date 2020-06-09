@@ -32,7 +32,7 @@
     "typescript"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.x"
   },
   "peerDependencies": {
     "typescript": ">3.0.0"

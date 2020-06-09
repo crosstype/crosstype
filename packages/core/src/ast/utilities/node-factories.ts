@@ -38,12 +38,6 @@ const getObjectLikeNodeDescriptors = (): PropertyDescriptorMap => ({
   }
 });
 
-const getDeclarationDescriptors = (): PropertyDescriptorMap => ({
-  getReferencesToThisNode: {
-    value(this: NodeObject) { return this._referencesToThis }
-  }
-});
-
 // endregion
 
 
@@ -94,10 +88,6 @@ export function createNode(
   /* Determine base flags */
   const flags = (properties.flags || NodeFlags.None) | (baseFlags || 0);
   const typeFlags = (properties.typeFlags || TypeFlags.None) | (baseTypeFlags || 0);
-
-  /* Add declaration descriptors if necessary */
-  if ((flags & NodeFlags.Declaration) && !additionalDescriptors?.getReferencesToThisNode)
-    Object.assign(additionalDescriptors || {}, getDeclarationDescriptors());
 
   // Assign property descriptors
   if (additionalDescriptors) Object.defineProperties(node, additionalDescriptors);

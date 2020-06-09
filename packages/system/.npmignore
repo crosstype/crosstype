@@ -1,0 +1,3 @@
+*.tsbuildinfo
+*.ts
+!*.d.ts

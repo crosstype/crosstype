@@ -1,6 +1,5 @@
 # Temporary
 resources
-packages/system
 packages/build-tools
 
 # Yarn

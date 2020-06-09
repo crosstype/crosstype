@@ -1,0 +1,38 @@
+{
+  "name": "@crosstype/system",
+  "description": "Shared system library for the crosstype suite",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "compile": "tsc",
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf coverage dist *.tsbuildinfo",
+    "-------------": "-------------",
+    "test": "",
+    "test:coverage": "jest --collect-coverage"
+  },
+  "author": {
+    "name": "Ron S.",
+    "email": "ron@crosstype.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crosstype/crosstype.git"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist",
+    "typescript"
+  ],
+  "keywords": [],
+  "engines": {
+    "node": ">=12.x"
+  },
+  "dependencies": {
+    "rfdc": "^1.1.4",
+    "typescript": "~3.9.3"
+  }
+}

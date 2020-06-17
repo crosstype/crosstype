@@ -26,7 +26,6 @@ function loadGenerators(config: GeneratorConfig): GeneratorContext[] {
         skipProject: true,
         compilerOptions: {
           target: 'ES2018',
-          jsx: 'react',
           esModuleInterop: true,
           module: 'commonjs',
         },

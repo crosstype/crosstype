@@ -29,7 +29,7 @@
   ],
   "keywords": [],
   "engines": {
-    "node": ">=10.x"
+    "node": ">=11.6"
   },
   "dependencies": {
     "rfdc": "^1.1.4",

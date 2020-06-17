@@ -44,7 +44,7 @@
     "python"
   ],
   "engines": {
-    "node": ">=10.x"
+    "node": ">=11.6"
   },
   "peerDependencies": {
     "typescript": ">3.0.0"

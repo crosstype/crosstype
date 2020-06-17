@@ -58,7 +58,6 @@
   },
   "workspaces": [
     "packages/system",
-    "language-packages/*",
     "packages/core"
   ],
   "dependencies": {}

@@ -1,5 +1,5 @@
 # @crosstype
-![Test](https://github.com/crosstype/crosstype/workflows/Test/badge.svg)
+![Build Status](https://github.com/crosstype/crosstype/workflows/Build/badge.svg)
 
 CrossType is a multi-language translation engine for cross-compiling data structure types
 

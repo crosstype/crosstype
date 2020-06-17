@@ -5,13 +5,15 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "compile": "tsc && shx cp -R dist/generated/* dist/ && shx cp -R dist/src/* dist/ && rimraf dist/generated dist/src",
+    "compile": "tsc",
     "build": "yarn run clean && yarn run compile",
     "generators": "yarn workspace @crosstype/build-tools run generate-files",
     "clean": "rimraf coverage dist generated **/*.tsbuildinfo **/generator.stats.json",
     "-------------  ": "-------------",
     "test": "echo not yet implemented",
-    "test:coverage": "jest --collect-coverage"
+    "test:coverage": "jest --collect-coverage",
+    "------------- ": "-------------",
+    "postcompile": "node scripts/post-compile.js"
   },
   "files": [
     "../../README.md",

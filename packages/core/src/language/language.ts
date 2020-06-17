@@ -54,7 +54,7 @@ export namespace Language {
   // region: Utilities
   /* ********************************************************* */
 
-  export const getLanguages = (): readonly LanguagePackage[] => languages;
+  export const getLanguages = (): readonly LanguagePackage[] => <readonly LanguagePackage[]><unknown>languages;
 
   export function getCompilers(): readonly Compiler[] {
     const res: Compiler[] = [];

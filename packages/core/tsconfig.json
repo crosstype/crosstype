@@ -1,17 +1,17 @@
 {
   "extends": "../../tsconfig.base",
-  "include": [ "src" ],
+  "include": [ "src", "generated" ],
   "exclude": [ "src/options/config" ],
 
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDirs": [ "src", "generated" ],
     "outDir": "dist",
     "module": "ESNext",
 
     "baseUrl": "src",
     "paths": {
-      "#ast": [ "ast" ],
-      "#ast/*": [ "ast/*" ],
+      "#ast": [ "ast", "../generated/ast" ],
+      "#ast/*": [ "ast/*", "../generated/ast/*" ],
       "#language": [ "language" ],
       "#language/*": [ "language/*" ],
       "#options": [ "options" ],
@@ -22,14 +22,15 @@
 
     "plugins": [
       { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-//      {
-//        "transform": "@crosstype/build-tools/dist/plugin.js",
-//        "beforeEmit": true,
-//        "generators": [ "options.generator.js" ],
-//        "logLevel": "info",
-//        "cwd": "C:/Work/Projects/crosstype/crosstype/packages/core"
-//      }
+      { "transform": "typescript-transform-paths", "afterDeclarations": true },
+      {
+        "transform": "@crosstype/build-tools/dist/generator/run.js",
+        "transformProgram": true,
+        "generators": [
+          "generators/ast.generator.ts"
+        ],
+        "logLevel": "info"
+      }
     ]
   }
 }

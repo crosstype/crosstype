@@ -9,7 +9,9 @@
       <excludeFolder url="file://$MODULE_DIR$/old" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/built" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/core/generated" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/generator" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/core/generators" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/src/config" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/src/generated" />
       <excludeFolder url="file://$MODULE_DIR$/packages/core/src/generator-config" />

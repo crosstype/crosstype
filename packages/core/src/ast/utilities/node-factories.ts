@@ -2,23 +2,24 @@ import { DefinitionFlags, NodeFlags, NodeKind, OrderKind, TypeFlags } from '#ast
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, ByteNode, CharacterNode,
   ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNumberNode,
-  Declaration, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration,
-  GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration,
-  IntersectionNode, LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, Node,
-  NotANumberNode, NothingNode, NullNode, ObjectNode, ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode,
-  RegExpLiteral, RegExpNode, SetNode, SignatureNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral,
-  TupleNode, TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
+  DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable,
+  ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode,
+  LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode,
+  NullNode, ObjectNode, ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode,
+  SetNode, SignatureNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
+  TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 import { omit } from '@crosstype/system';
 import { NodeForKind } from '#ast/node-lookups';
 import { NodeObject } from '#ast/node-object';
-import { getNodeMetadata } from '#ast/node-metadata';
 import {
   isClassDeclaration, isDeclaration, isFunctionDeclaration, isInterfaceDeclaration, isMethodDeclaration, isNamedNode,
   isNode, isPropertyDeclaration, isTypeDeclaration
 } from '#ast/utilities/node-typeguards';
 import { NodeMap, NodeSet } from '#ast/components';
 import { cloneNode } from '#ast/utilities/clone-node';
+import { nodeMetadata } from '#ast/node-metadata';
+import { Declaration } from '#ast/node-aliases';
 
 
 /* ****************************************************************************************************************** */
@@ -83,11 +84,11 @@ export function createNode(
   additionalDescriptors?: PropertyDescriptorMap
 ): Node {
   const node = new NodeObject(kind, properties.origin, properties.compileOptions);
-  const { baseTypeFlags, baseFlags, childContainerProperties } = getNodeMetadata(node);
+  const { baseTypeFlags, baseFlags, childContainerProperties } = nodeMetadata[kind];
 
   /* Determine base flags */
-  const flags = (properties.flags || NodeFlags.None) | (baseFlags || 0);
-  const typeFlags = (properties.typeFlags || TypeFlags.None) | (baseTypeFlags || 0);
+  const flags = (properties.flags || NodeFlags.None) | (baseFlags?.reduce((p, c) => p + c) || 0)
+  const typeFlags = (properties.typeFlags || TypeFlags.None) | (baseTypeFlags?.reduce((p, c) => p + c) || 0)
 
   // Assign property descriptors
   if (additionalDescriptors) Object.defineProperties(node, additionalDescriptors);

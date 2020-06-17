@@ -1,7 +1,7 @@
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, BottomNode, ByteNode, CharacterNode,
   ClassDeclaration, ClassLikeNode, ComplexNumberNode, DateLikeNode, DateNode, DateTimeLiteral, DateTimeNode,
-  DecimalLiteral, DecimalNumberNode, Declaration, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral,
+  DecimalLiteral, DecimalNumberNode, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral,
   FunctionDeclaration, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
   InterfaceDeclaration, IntersectionNode, IterableNode, LinkedListNode, ListNode, MapNode, MethodDeclaration,
   ModuleNode, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
@@ -12,6 +12,7 @@ import {
 } from '#ast/node-types';
 import { NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { NodeObject } from '#ast/node-object';
+import { Declaration } from '#ast/node-aliases';
 
 
 /* ****************************************************************************************************************** */

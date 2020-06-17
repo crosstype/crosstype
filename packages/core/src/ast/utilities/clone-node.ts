@@ -1,7 +1,8 @@
 import { NodeMap, NodeSet } from '#ast/components';
-import { Declaration, NamedNode, Node } from '#ast/node-types';
-import { getNodeMetadata } from '#ast/node-metadata';
+import { NamedNode, Node } from '#ast/node-types';
 import { isNode, isReferenceNode } from '#ast/utilities/node-typeguards';
+import { nodeMetadata } from '#ast/node-metadata';
+import { Declaration } from '#ast/node-aliases';
 
 
 /* ****************************************************************************************************************** */
@@ -16,7 +17,7 @@ function copyNode(updatedNodes: Map<Node, Node | undefined>, node: Node): Node {
 
   const descriptors = Object.getOwnPropertyDescriptors(node);
   const newNode: Node = Object.create(Object.getPrototypeOf(node));
-  const { childContainerProperties } = getNodeMetadata(node);
+  const { childContainerProperties } = nodeMetadata[node.kind];
 
   /* Clone items */
   for (const propKey of Object.keys(descriptors))

@@ -1,6 +1,5 @@
 # Temporary
 resources
-packages/build-tools
 
 # Yarn
 **/yarn.lock

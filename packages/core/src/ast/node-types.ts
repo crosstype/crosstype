@@ -1,8 +1,7 @@
 /**
  * Node Interfaces & Related types
  *
- * Note: This file is used by generators to determine node meta-data and aliases groups.
- * The JSDoc annotations `@flags` and `@typeFlags` define those properties for node kind metadata.
+ * Note: This file is used by generators! See packages/core/generators/ast.generator.ts
  */
 import {
   DecimalKind, DefinitionFlags, LinkedListFlags, ModifierFlags, NodeFlags, NodeKind, OrderKind, SignatureKind, TypeFlags
@@ -12,6 +11,7 @@ import { NodeMap, NodeSet, ReadonlyNodeMap, ReadonlyNodeSet } from '#ast/compone
 import { Language } from '#language/language';
 import { CompileOptionsSet } from '#options/types';
 import { NodeIndex, NodeOrigin, OutputFile } from '#ast/shared-types';
+import { Declaration, RootDeclaration, ValueNode } from '#ast/node-aliases';
 
 
 /* ****************************************************************************************************************** */
@@ -26,59 +26,12 @@ interface VariableBitLength {
 /**
  * Helper type used solely to indicate to generator what base flags a Node should have
  */
-type Flags<
+interface Flags<
   T extends TypeFlags | NodeFlags,
   K extends T extends TypeFlags ? keyof typeof TypeFlags : keyof typeof NodeFlags
-> = {}
+> {}
 
 // formatter:on
-// endregion
-
-
-/* ****************************************************************************************************************** */
-// region: Group Aliases
-/* ****************************************************************************************************************** */
-
-// TODO - Make auto generated
-
-/**
- * All valid Nodes
- */
-export type AnyNode =
-  Node | ReferenceNode | StringNode | CharacterNode | ByteNode | RegExpNode | SymbolNode | BooleanNode | NumericNode |
-  StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionDeclaration |
-  AnonymousFunctionNode | SignatureNode | ParameterNode | IterableNode | EnumDeclaration | TypeParameterDeclaration |
-  TypeArgumentNode | TupleNode | UnionNode | IntersectionNode | AnythingNode | NothingNode | NullNode | ModuleNode |
-  ObjectNode | ClassDeclaration | InterfaceDeclaration | PropertyDeclaration | MethodDeclaration | DefinitionNode |
-  DateTimeLiteral | DateLikeNode
-
-/**
- * Nodes which cannot be used in the general value position (must have a specific parent)
- */
-export type NonValueNode =
-  ModuleNode | ParameterNode | SignatureNode | TypeParameterDeclaration | TypeArgumentNode | ClassDeclaration |
-  InterfaceDeclaration | PropertyDeclaration | MethodDeclaration
-
-/**
- * Nodes that can be used in the general value position (can have any parent)
- */
-export type ValueNode =
-  Node | ReferenceNode | StringNode | CharacterNode | ByteNode | RegExpNode | SymbolNode | BooleanNode | NumericNode |
-  StringLiteral | TrueLiteral | FalseLiteral | RegExpLiteral | SymbolLiteral | NumericLiteral | FunctionDeclaration |
-  AnonymousFunctionNode | IterableNode | EnumDeclaration | TupleNode | UnionNode | IntersectionNode | AnythingNode |
-  NothingNode | NullNode | ObjectNode | PropertyDeclaration | MethodDeclaration | DefinitionNode | DateTimeLiteral |
-  DateLikeNode
-
-/**
- * @see https://en.wikipedia.org/wiki/Declaration_(computer_programming)
- */
-export type Declaration =
-  FunctionDeclaration | ClassDeclaration | InterfaceDeclaration | PropertyDeclaration | MethodDeclaration |
-  EnumDeclaration | EnumMemberDeclaration | TypeDeclaration | TypeParameterDeclaration | VariableDeclaration
-
-export type RootDeclaration =
-  FunctionDeclaration | ClassDeclaration | InterfaceDeclaration | TypeDeclaration | EnumDeclaration | VariableDeclaration
-
 // endregion
 
 
@@ -550,7 +503,7 @@ export interface LinkedListNode extends IterableNodeBase, Flags<TypeFlags, 'Iter
  * @see https://en.wikipedia.org/wiki/Enumerated_type
  * Note: ADA allows specifying bit length for enum
  */
-export interface EnumDeclaration extends DeclarationBase, VariableBitLength, Flags<TypeFlags, 'Enum'> {
+export interface EnumDeclaration extends DeclarationBase, VariableBitLength, Flags<TypeFlags, 'Enum'>, Flags<NodeFlags, 'Declaration'> {
   readonly kind: NodeKind.EnumDeclaration
   name: string
   members: NodeMap<EnumMemberDeclaration>
@@ -741,7 +694,7 @@ export interface DateTimeNode extends DateBase, Flags<TypeFlags, 'Abstract'> {
  * Named function, allows multiple (overload) signatures
  * @see https://en.wikipedia.org/wiki/Subroutine
  */
-export interface FunctionDeclaration extends DeclarationBase, Flags<TypeFlags, 'Function'> {
+export interface FunctionDeclaration extends DeclarationBase, Flags<TypeFlags, 'Function'>, Flags<NodeFlags, 'Declaration'> {
   readonly kind: NodeKind.FunctionDeclaration
   signatures: NodeSet<SignatureNode>
 }
@@ -909,7 +862,9 @@ export interface NullNode extends Node, Flags<TypeFlags, 'Unit'> {
  */
 export interface ReferenceNode extends Node, Flags<TypeFlags, 'Reference'> {
   readonly kind: NodeKind.Reference
-  /* @notChild */
+  /**
+   * @notChild
+   */
   target: Declaration
 
   /**

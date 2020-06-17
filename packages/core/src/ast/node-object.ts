@@ -5,9 +5,9 @@ import { Language } from '#language/language';
 import { accForEach } from '@crosstype/system';
 import { NodeMap, NodeSet, ReadonlyNodeSet } from '#ast/components';
 import { isDefinitionNode, isNamedNode, isNode, isSourceFileNode } from '#ast/utilities/node-typeguards';
-import { NodeMetadata, nodeMetadata } from '#ast/node-metadata';
 import { cloneNode } from '#ast/utilities/clone-node';
-import { NodeOrigin } from '#ast/shared-types';
+import { NodeMetadata, NodeOrigin } from '#ast/shared-types';
+import { nodeMetadata } from '#ast/node-metadata';
 
 
 /* ****************************************************************************************************************** *

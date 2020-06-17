@@ -1,6 +1,7 @@
 import { CompileOptions, SourceFileInfo } from '../types';
 import { TagMap } from '#ast/components';
 import { SymbolLiteral } from '#ast/node-types';
+import { NodeFlags, TypeFlags } from '#ast/enums';
 
 
 /* ****************************************************************************************************************** */
@@ -30,6 +31,12 @@ export interface OutputFile {
   fileName: string,
   language: string,
   compileOptions?: CompileOptions                 // Configure to override using Definition's compileOptions as a base
+}
+
+export interface NodeMetadata {
+  childContainerProperties?: Map</* key */ string, { key: string, optional: boolean }>
+  baseFlags?: NodeFlags[]
+  baseTypeFlags?: TypeFlags[]
 }
 
 // endregion

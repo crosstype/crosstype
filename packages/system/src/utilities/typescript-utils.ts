@@ -2,11 +2,12 @@ import * as ts from '../../typescript'
 import {
   __String, BaseType, CheckFlags, ClassLikeDeclaration, CompilerHost, CompilerOptions, Declaration, emptyArray,
   getCheckFlags, getDeclarationModifierFlagsFromSymbol, getEffectiveImplementsTypeNodes, Identifier, ImportDeclaration,
-  IndexKind, InterfaceType, IntrinsicType, ModifierFlags, ModuleDeclaration, NamedImports, Node, ObjectType, Signature,
-  SignatureKind, SourceFile, Symbol, SymbolFlags, SyntaxKind, Type, TypeChecker
+  IndexKind, InterfaceType, IntrinsicType, ModifierFlags, ModuleDeclaration, NamedImports, Node, ObjectType, Program,
+  Signature, SignatureKind, SourceFile, Symbol, SymbolFlags, SyntaxKind, Type, TypeChecker
 } from '../../typescript'
 import { ConvertibleSet, getPackageDetail, hasProperties, normalizeAndJoinPaths, truthyStr } from '../index';
 import path from 'path';
+import fs from 'fs';
 
 
 /* **************************************************************************************************************** */
@@ -256,6 +257,20 @@ export function createCompilerHostWithCache(
       return sourceFile;
     }
   });
+}
+
+/**
+ * Check common source directory and walk up until it finds tsconfig.json
+ * @param program
+ */
+export function findLikelyTsConfigFile(program: Program): string | undefined {
+  let dir = program.getCommonSourceDirectory();
+
+  while(fs.existsSync(dir)) {
+    const fileName = path.resolve(dir, 'tsconfig.json');
+    if (fs.existsSync(fileName)) return fileName;
+    dir = path.resolve(dir, '..');
+  }
 }
 
 // endregion

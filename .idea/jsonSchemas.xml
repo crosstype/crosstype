@@ -20,6 +20,9 @@
                   <Item>
                     <option name="path" value="tsconfig.generator.json" />
                   </Item>
+                  <Item>
+                    <option name="path" value="packages/generators.tsconfig.json" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>

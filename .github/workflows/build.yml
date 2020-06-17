@@ -1,15 +1,20 @@
-name: Test
+name: Build (CI)
 
-on: [push]
+on: [ push, pull_request ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
+    strategy:
+      matrix:
+        node-version: [ 12.x, 14.x ]
 
-      - name: Get Yarn cache directory path
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Determine Yarn Cache Path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
@@ -21,14 +26,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Setup Node
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install Node dependencies
-        run: yarn --frozen-lockfile
-
-      - name: Run tests
-        run: yarn test
+      - name: Install Packages
+        run: yarn install --frozen-lockfile
 
       - name: Build
         run: yarn build
+
+      - name: Test
+        run: yarn test

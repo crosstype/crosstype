@@ -1,0 +1,31 @@
+{
+  "name": "@crosstype/build-tools",
+  "description": "Build tools for the crosstype suite",
+  "license": "MIT",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "compile": "tsc",
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf coverage dist *.tsbuildinfo",
+    "-------------  ": "-------------",
+    "generate-files": "node bin/generate.js --force --logLevel debug core",
+    "-------------   ": "-------------",
+    "test": "echo not yet implemented",
+    "test:coverage": "jest --collect-coverage"
+  },
+  "author": {
+    "name": "Ron S.",
+    "email": "ron@crosstype.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crosstype/crosstype.git"
+  },
+  "dependencies": {
+    "is-glob": "^4.0.1",
+    "@crosstype/system": "0.0.0",
+    "minimist": "^1.2.5"
+  }
+}

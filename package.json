@@ -58,6 +58,7 @@
   },
   "workspaces": [
     "packages/system",
+    "packages/build-tools",
     "packages/core"
   ],
   "dependencies": {}

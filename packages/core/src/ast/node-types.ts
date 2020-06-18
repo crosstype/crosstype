@@ -760,7 +760,7 @@ export interface TypeParameterDeclaration extends DeclarationBase, Flags<NodeFla
  */
 export interface TypeArgumentNode extends NamedNode<string>, Flags<NodeFlags, 'Nested'> {
   readonly kind: NodeKind.TypeArgument
-  readonly association: ParameterNode
+  readonly association: TypeParameterDeclaration
   readonly name: string                   // Getter to association.name
   type: ValueNode
 }

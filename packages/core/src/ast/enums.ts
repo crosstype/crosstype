@@ -69,9 +69,10 @@ export enum DefinitionFlags {
   Class = 1 << 2,
   Interface = 1 << 3,
   Type = 1 << 4,
+  Enum = 1 << 5,
 
   /* Modifiers */
-  HasMultipleDeclarations = 1 << 5,
+  HasMultipleDeclarations = 1 << 6,
   Parameterized = 1 << 29       // Instance of a generic with supplied type-arguments (combined with Class or Interface)
 }
 

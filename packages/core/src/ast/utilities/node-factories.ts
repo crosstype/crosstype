@@ -6,15 +6,15 @@ import {
   ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode,
   LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode,
   NullNode, ObjectNode, ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode,
-  SetNode, SignatureNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
+  SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
   TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 import { omit } from '@crosstype/system';
 import { NodeForKind } from '#ast/node-lookups';
 import { NodeObject } from '#ast/node-object';
 import {
-  isClassDeclaration, isDeclaration, isFunctionDeclaration, isInterfaceDeclaration, isMethodDeclaration, isNamedNode,
-  isNode, isPropertyDeclaration, isTypeDeclaration
+  isClassDeclaration, isDeclaration, isEnumDeclaration, isFunctionDeclaration, isInterfaceDeclaration,
+  isMethodDeclaration, isNamedNode, isNode, isPropertyDeclaration, isTypeDeclaration, isVariableDeclaration
 } from '#ast/utilities/node-typeguards';
 import { NodeMap, NodeSet } from '#ast/components';
 import { cloneNode } from '#ast/utilities/clone-node';
@@ -128,15 +128,16 @@ export function createDefinitionNode(properties: NodeProperties<DefinitionNode, 
     definitionFlags: {
       get(this: DefinitionNode): DefinitionFlags {
         let res = DefinitionFlags.None |
-          +(this.declarations.size > 0) && DefinitionFlags.HasMultipleDeclarations |
-          +(!!this.typeArguments && this.typeArguments.size > 0) && DefinitionFlags.Parameterized;
+          (+(this.declarations.size > 1) && DefinitionFlags.HasMultipleDeclarations) |
+          (+(!!this.typeArguments && this.typeArguments.size > 0) && DefinitionFlags.Parameterized);
 
         for (const declaration of this.declarations.values())
           res |= isFunctionDeclaration(declaration) ? DefinitionFlags.Function :
                  isTypeDeclaration(declaration) ? DefinitionFlags.Type :
-                 isTypeDeclaration(declaration) ? DefinitionFlags.Type :
                  isClassDeclaration(declaration) ? DefinitionFlags.Class :
                  isInterfaceDeclaration(declaration) ? DefinitionFlags.Interface :
+                 isEnumDeclaration(declaration) ? DefinitionFlags.Enum :
+                 isVariableDeclaration(declaration) ? DefinitionFlags.Variable :
                  0;
 
         return res;
@@ -158,8 +159,8 @@ export function createNamespaceNode(properties: NodeProperties<NamespaceNode>): 
   return createNode(NodeKind.Namespace, properties);
 }
 
-export function createSourceFileNode(properties: NodeProperties<NamespaceNode>): NamespaceNode {
-  return createNode(NodeKind.Namespace, properties);
+export function createSourceFileNode(properties: NodeProperties<SourceFileNode>): SourceFileNode {
+  return createNode(NodeKind.SourceFile, properties);
 }
 
 // endregion
@@ -313,8 +314,7 @@ export function createLinkedListNode(properties: NodeProperties<LinkedListNode, 
   LinkedListNode
 {
   const props = Object.assign({}, properties, {
-    orderKind: <const>OrderKind.Link,
-    indexType: createIntegerNode()
+    orderKind: <const>OrderKind.Link
   });
   return createNode(NodeKind.LinkedList, props);
 }

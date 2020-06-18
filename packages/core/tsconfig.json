@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.base",
   "include": [ "src", "generated" ],
-  "exclude": [ "src/options/config" ],
 
   "compilerOptions": {
     "rootDirs": [ "src", "generated" ],
     "outDir": "dist",
-    "module": "ESNext",
 
     "baseUrl": "src",
     "paths": {

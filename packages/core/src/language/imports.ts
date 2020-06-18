@@ -1,22 +1,21 @@
-import { LanguagePackage } from '#package';
-
-
 /* ****************************************************************************************************************** */
 // region: Helpers
 /* ****************************************************************************************************************** */
-// @formatter:off
 
-function loadPackage<F extends () => Promise<any>>(fn: F):
-  Promise<
-    ReturnType<F> extends PromiseLike<infer U> ?
-      boolean extends (U extends any ? true : false) ? never : Omit<U, 'default'> :
-    never
-  >
-function loadPackage(fn: () => Promise<LanguagePackage>): Promise<any> {
-  return fn().then((pkg) => pkg, () => void 0);
+function loadPackage<L extends { promise: () => Promise<any>, module: string }>(l: L):
+  // @formatter:off
+  ReturnType<L['promise']> extends PromiseLike<infer U> ?
+    boolean extends (U extends any ? true : false) ? never : Omit<U, 'default'> :
+  never
+  // @formatter:on
+function loadPackage({ module }: { module: string }): any {
+  try {
+    return require(module);
+  } catch(e) {
+    return void 0;
+  }
 }
 
-// @formatter:on
 // endregion
 
 
@@ -25,16 +24,25 @@ function loadPackage(fn: () => Promise<LanguagePackage>): Promise<any> {
 /* ****************************************************************************************************************** */
 // We're doing some trickery here to dynamically load optional dependency types. If not found, the type will be never.
 
-// @ts-ignore
-const CtlTypeScript = () => import('@crosstype/ctl-typescript');
-// @ts-ignore
-const CtlPython = () => import('@crosstype/ctl-python');
-// @ts-ignore
-const CtlJsonSchema = () => import('@crosstype/ctl-json-schema');
+const CtlTypeScript = {
+  // @ts-ignore
+  promise: () => import('@crosstype/ctl-typescript'),
+  module: '@crosstype/ctl-typescript'
+};
+const CtlPython = {
+  // @ts-ignore
+  promise: () => import('@crosstype/ctl-python'),
+  module: '@crosstype/ctl-python'
+};
+const CtlJsonSchema = {
+  // @ts-ignore
+  promise: () => import('@crosstype/ctl-json-schema'),
+  module: '@crosstype/ctl-json-schema'
+};
 
-export const TypeScript = await loadPackage(CtlTypeScript);
-export const Python = await loadPackage(CtlPython);
-export const JsonSchema = await loadPackage(CtlJsonSchema);
+export const TypeScript = loadPackage(CtlTypeScript);
+export const Python = loadPackage(CtlPython);
+export const JsonSchema = loadPackage(CtlJsonSchema);
 
 export type TypeScript = typeof TypeScript
 export type Python = typeof Python

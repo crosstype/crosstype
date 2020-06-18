@@ -7,7 +7,12 @@ import { accForEach } from '@crosstype/system';
 // region: Helpers
 /* ****************************************************************************************************************** */
 
-const getValidNodes = (arr: any) => arr?.filter((i: any) => isNode(i));
+const getValidNodes = <T extends Node>(n: T[] | NodeSet<T>): T[] | undefined => {
+  if (!n) return void 0;
+
+  const arr = NodeSet.isNodeSet(n) ? n.toArray() : n as Node[];
+  return arr.filter((i: any) => isNode(i)) as T[];
+}
 
 function createFrom<T extends { new(nodes?: Node[]): any } | { new(nodes?: NamedNode[]): any }>
 (cls: T, args: IArguments): InstanceType<T> {
@@ -55,7 +60,7 @@ export type ReadonlyNodeMap<T extends NamedNode> =
  */
 export class NodeSet<T extends Node> extends Set<T> {
   constructor(nodes?: T[]) {
-    super(getValidNodes(nodes));
+    super(getValidNodes(nodes as T[]));
   }
 
   /* ********************************************************* *
@@ -152,7 +157,7 @@ export class NodeSet<T extends Node> extends Set<T> {
  */
 export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
   constructor(nodes?: T[] | NodeSet<T>) {
-    super(getValidNodes(nodes));
+    super(getValidNodes(nodes as T[] | NodeSet<T>)?.map(n => [ n.name, n ]));
   }
 
   /* ********************************************************* *
@@ -204,6 +209,13 @@ export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
   find<U extends Node>(predicate: (node: Node) => node is U): U | undefined
   find(predicate: (node: T) => boolean): T | undefined {
     return this.toArray().find(predicate);
+  }
+
+  /**
+   * Add a node
+   */
+  add(node: T): void {
+    this.set(node.name, node);
   }
 
   /* ********************************************************* *

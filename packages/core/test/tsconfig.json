@@ -1,0 +1,21 @@
+{
+  "include": [ "ast" ],
+  "extends": "../../../tsconfig.base",
+
+  "compilerOptions": {
+    "types": [ "jest", "node" ],
+    "noEmit": true,
+
+    "baseUrl": "../src",
+    "paths": {
+      "#ast": [ "ast", "../generated/ast" ],
+      "#ast/*": [ "ast/*", "../generated/ast/*" ],
+      "#language": [ "language" ],
+      "#language/*": [ "language/*" ],
+      "#options": [ "options" ],
+      "#options/*": [ "options/*" ],
+      "#package": [ "package" ],
+      "#package/*": [ "package/*" ]
+    }
+  }
+}

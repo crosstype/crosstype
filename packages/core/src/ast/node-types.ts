@@ -264,8 +264,8 @@ export interface BooleanNode extends Node, Flags<TypeFlags, 'Primitive'> {
 // region: Numeric Primitive Nodes
 /* ****************************************************************************************************************** */
 
-export type RealNumberNode = IntegerNode | DecimalNumberNode
-export type NumericNode = IntegerNode | DecimalNumberNode | NotANumberNode | InfinityNode | ComplexNumberNode
+export type RealNumberNode = IntegerNode | DecimalNode
+export type NumericNode = IntegerNode | DecimalNode | NotANumberNode | InfinityNode | ComplexNumberNode
 
 /**
  * Real whole number
@@ -281,8 +281,8 @@ export interface IntegerNode extends Node, VariableBitLength, Flags<TypeFlags, '
  * @see https://en.wikipedia.org/wiki/Decimal_floating_point
  * @see https://en.wikipedia.org/wiki/Fixed-point_arithmetic
  */
-export interface DecimalNumberNode extends Node, VariableBitLength, Flags<TypeFlags, 'Primitive' | 'Numeric'> {
-  readonly kind: NodeKind.DecimalNumber
+export interface DecimalNode extends Node, VariableBitLength, Flags<TypeFlags, 'Primitive' | 'Numeric'> {
+  readonly kind: NodeKind.Decimal
   decimalKind: DecimalKind
   /**
    * Optionally specify decimal precision
@@ -548,8 +548,8 @@ export interface TupleNode extends Node, Flags<TypeFlags, 'Tuple'> {
 /* ****************************************************************************************************************** */
 
 export type ObjectNodeKey = string | number | SymbolLiteral
-export type ObjectLikeNode = ObjectNode | ClassDeclaration | InterfaceDeclaration
-export type ClassLikeNode = ClassDeclaration | InterfaceDeclaration
+export type ObjectLikeNode = ObjectNode | ClassDeclaration | InterfaceDeclaration | AnonymousClass
+export type ClassLikeNode = ClassDeclaration | InterfaceDeclaration | AnonymousClass
 
 export interface ObjectNodeBase extends Node {
   members: NodeMap<ObjectLikeMember>
@@ -689,6 +689,8 @@ export interface DateTimeNode extends DateBase, Flags<TypeFlags, 'Abstract'> {
 /* ****************************************************************************************************************** */
 // region: Function-Related Nodes
 /* ****************************************************************************************************************** */
+
+export type FunctionNode = FunctionDeclaration | AnonymousFunctionNode
 
 /**
  * Named function, allows multiple (overload) signatures

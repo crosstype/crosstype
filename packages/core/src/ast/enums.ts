@@ -106,7 +106,7 @@ export enum NodeKind {
 
   /* Number-Like Primitives */
   Integer,
-  DecimalNumber,
+  Decimal,
   ComplexNumber,
   NotANumber,
   Infinity,

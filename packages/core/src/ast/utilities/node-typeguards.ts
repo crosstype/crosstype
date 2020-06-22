@@ -1,14 +1,14 @@
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, BottomNode, ByteNode, CharacterNode,
   ClassDeclaration, ClassLikeNode, ComplexNumberNode, DateLikeNode, DateNode, DateTimeLiteral, DateTimeNode,
-  DecimalLiteral, DecimalNumberNode, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral,
-  FunctionDeclaration, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
+  DecimalLiteral, DecimalNode, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral,
+  FunctionDeclaration, FunctionNode, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
   InterfaceDeclaration, IntersectionNode, IterableNode, LinkedListNode, ListNode, MapNode, MethodDeclaration,
   ModuleNode, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
-  ObjectLikeMember, ObjectLikeNode, ObjectNode, ParameterNode, PropertyDeclaration, RealNumberNode, ReferenceNode,
-  RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode, SymbolLiteral,
-  SymbolNode, TopNode, TrueLiteral, TupleNode, TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode,
-  VariableDeclaration
+  ObjectLikeMember, ObjectLikeNode, ObjectNode, ParameterNode, PropertyDeclaration, RealNumberLiteral, RealNumberNode,
+  ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode,
+  SymbolLiteral, SymbolNode, TopNode, TrueLiteral, TupleNode, TypeArgumentNode, TypeDeclaration,
+  TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 import { NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { NodeObject } from '#ast/node-object';
@@ -36,10 +36,10 @@ export const isRegExpNode = (n: Node): n is RegExpNode => (n.kind === NodeKind.R
 export const isSymbolNode = (n: Node): n is SymbolNode => (n.kind === NodeKind.Symbol);
 export const isBooleanNode = (n: Node): n is BooleanNode => (n.kind === NodeKind.Boolean);
 
-export const isRealNumberNode = (n: Node): n is RealNumberNode => [ NodeKind.Integer, NodeKind.DecimalNumber ].includes(n.kind);
+export const isRealNumberNode = (n: Node): n is RealNumberNode => [ NodeKind.Integer, NodeKind.Decimal ].includes(n.kind);
 export const isNumericNode = (n: Node): n is NumericNode => !!(n.typeFlags & TypeFlags.Numeric);
 export const isIntegerNode = (n: Node): n is IntegerNode => (n.kind === NodeKind.Integer);
-export const isDecimalNumberNode = (n: Node): n is DecimalNumberNode => (n.kind === NodeKind.DecimalNumber);
+export const isDecimalNumberNode = (n: Node): n is DecimalNode => (n.kind === NodeKind.Decimal);
 export const isComplexNumberNode = (n: Node): n is ComplexNumberNode => (n.kind === NodeKind.ComplexNumber);
 export const isNotANumberNode = (n: Node): n is NotANumberNode => (n.kind === NodeKind.NotANumber);
 export const isInfinityNode = (n: Node): n is InfinityNode => (n.kind === NodeKind.Infinity);
@@ -51,6 +51,7 @@ export const isRegExpLiteral = (n: Node): n is RegExpLiteral => (n.kind === Node
 export const isDateTimeLiteral = (n: Node): n is DateTimeLiteral => (n.kind === NodeKind.DateTimeLiteral);
 export const isSymbolLiteral = (n: Node): n is SymbolLiteral => (n.kind === NodeKind.SymbolLiteral);
 
+export const isRealNumberLiteral = (n: Node): n is RealNumberLiteral => [ NodeKind.IntegerLiteral, NodeKind.DecimalLiteral ].includes(n.kind);
 export const isIntegerLiteral = (n: Node): n is IntegerLiteral => (n.kind === NodeKind.IntegerLiteral);
 export const isDecimalLiteral = (n: Node): n is DecimalLiteral => (n.kind === NodeKind.DecimalLiteral);
 export const isImaginaryNumberLiteral = (n: Node): n is ImaginaryNumberLiteral => (n.kind === NodeKind.ImaginaryNumberLiteral);
@@ -84,6 +85,7 @@ export const isDateLikeNode = (n: Node): n is DateLikeNode => [ NodeKind.Date, N
 export const isDateNode = (n: Node): n is DateNode => (n.kind === NodeKind.Date);
 export const isDateTimeNode = (n: Node): n is DateTimeNode => (n.kind === NodeKind.DateTime);
 
+export const isFunctionNode = (n: Node): n is FunctionNode => !!(n.typeFlags & TypeFlags.Function);
 export const isFunctionDeclaration = (n: Node): n is FunctionDeclaration => (n.kind === NodeKind.FunctionDeclaration);
 export const isAnonymousFunctionNode = (n: Node): n is AnonymousFunctionNode => (n.kind === NodeKind.AnonymousFunction);
 export const isSignatureNode = (n: Node): n is SignatureNode => (n.kind === NodeKind.Signature);

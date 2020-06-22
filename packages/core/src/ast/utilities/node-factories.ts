@@ -1,7 +1,7 @@
 import { DefinitionFlags, NodeFlags, NodeKind, OrderKind, TypeFlags } from '#ast/enums';
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, ByteNode, CharacterNode,
-  ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNumberNode,
+  ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNode,
   DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable,
   ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode,
   LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode,
@@ -198,8 +198,8 @@ export function createIntegerNode(properties?: NodeProperties<IntegerNode>): Int
   return createNode(NodeKind.Integer, properties || {});
 }
 
-export function createDecimalNumberNode(properties: NodeProperties<DecimalNumberNode>): DecimalNumberNode {
-  return createNode(NodeKind.DecimalNumber, properties);
+export function createDecimalNumberNode(properties: NodeProperties<DecimalNode>): DecimalNode {
+  return createNode(NodeKind.Decimal, properties);
 }
 
 export function createComplexNumberNode(properties: NodeProperties<ComplexNumberNode>): ComplexNumberNode {
@@ -221,7 +221,7 @@ export function createInfinityNode(properties: NodeProperties<InfinityNode>): In
 // region: Non-Numeric Literal Nodes
 /* ****************************************************************************************************************** */
 
-export function createStringLiteralNode(properties: NodeProperties<StringLiteral>): StringLiteral {
+export function createStringLiteral(properties: NodeProperties<StringLiteral>): StringLiteral {
   return createNode(NodeKind.StringLiteral, properties);
 }
 

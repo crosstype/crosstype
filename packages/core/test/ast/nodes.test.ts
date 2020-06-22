@@ -10,81 +10,94 @@ import {
   createListNode, createMapNode, createMethodDeclaration, createMultiSetNode, createNamespaceNode, createNotANumberNode,
   createNothingNode, createNullNode, createObjectNode, createParameterNode, createPropertyDeclaration,
   createReferenceNode, createRegExpLiteral, createRegExpNode, createSetNode, createSignatureNode, createSourceFileNode,
-  createStringLiteralNode, createStringNode, createSymbolLiteral, createSymbolNode, createTopNode, createTrueLiteral,
+  createStringLiteral, createStringNode, createSymbolLiteral, createSymbolNode, createTopNode, createTrueLiteral,
   createTupleNode, createTypeArgumentNode, createTypeDeclaration, createTypeParameterDeclaration, createUnionNode,
-  createVariableDeclaration
+  createVariableDeclaration, isAnonymousClass, isAnonymousFunctionNode, isAnythingNode, isArrayNode, isBooleanNode,
+  isBottomNode, isByteNode, isCharacterNode, isClassDeclaration, isClassLikeNode, isComplexNumberNode, isDateLikeNode,
+  isDateNode, isDateTimeLiteral, isDateTimeNode, isDecimalLiteral, isDecimalNumberNode, isDeclaration, isDefinitionNode,
+  isEnumDeclaration, isEnumMemberDeclaration, isFalseLiteral, isFunctionDeclaration, isFunctionNode, isGenericIterable,
+  isImaginaryNumberLiteral, isInfinityNode, isIntegerLiteral, isIntegerNode, isInterfaceDeclaration, isIntersectionNode,
+  isIterableNode, isLinkedListNode, isListNode, isMapNode, isMethodDeclaration, isModuleNode, isMultiSetNode,
+  isNamedNode, isNamespaceNode, isNotANumberNode, isNothingNode, isNullNode, isNumericNode, isObjectLikeMember,
+  isObjectLikeNode, isObjectNode, isParameterNode, isPropertyDeclaration, isRealNumberLiteral, isRealNumberNode,
+  isReferenceNode, isRegExpLiteral, isRegExpNode, isSetNode, isSignatureNode, isSourceFileNode, isStringLiteral,
+  isStringNode, isSymbolLiteral, isSymbolNode, isTopNode, isTrueLiteral, isTupleNode, isTypeArgumentNode,
+  isTypeDeclaration, isTypeParameterDeclaration, isUnionNode, isVariableDeclaration
 } from '#ast/utilities';
 import { NodeForKind } from '#ast/node-lookups';
 import { nodeMetadata } from '#ast/node-metadata';
 import { RootDeclaration } from '#ast/node-aliases';
 import { NodeMap } from '#ast/components';
+import { OneOrMore } from '@crosstype/system';
 
 
 /* ****************************************************************************************************************** *
  * Config
  * ****************************************************************************************************************** */
 
-const factories: Array<[ string, (properties?: any) => Node, NodeKind ]> = [
+type TypeGuard = (v: any) => boolean;
+
+const factories: Array<[ string, (properties?: any) => Node, NodeKind, OneOrMore<TypeGuard> ]> = [
   /* No special tests */
-  [ 'NamespaceNode', createNamespaceNode, NodeKind.Namespace ],
-  [ 'SourceFileNode', createSourceFileNode, NodeKind.SourceFile ],
-  [ 'StringNode', createStringNode, NodeKind.String ],
-  [ 'CharacterNode', createCharacterNode, NodeKind.Character ],
-  [ 'ByteNode', createByteNode, NodeKind.Byte ],
-  [ 'RegExpNode', createRegExpNode, NodeKind.RegExp ],
-  [ 'SymbolNode', createSymbolNode, NodeKind.Symbol ],
-  [ 'BooleanNode', createBooleanNode, NodeKind.Boolean ],
-  [ 'IntegerNode', createIntegerNode, NodeKind.Integer ],
-  [ 'DecimalNumberNode', createDecimalNumberNode, NodeKind.DecimalNumber ],
-  [ 'ComplexNumberNode', createComplexNumberNode, NodeKind.ComplexNumber ],
-  [ 'NotANumberNode', createNotANumberNode, NodeKind.NotANumber ],
-  [ 'InfinityNode', createInfinityNode, NodeKind.Infinity ],
-  [ 'StringLiteralNode', createStringLiteralNode, NodeKind.StringLiteral ],
-  [ 'TrueLiteral', createTrueLiteral, NodeKind.TrueLiteral ],
-  [ 'FalseLiteral', createFalseLiteral, NodeKind.FalseLiteral ],
-  [ 'RegExpLiteral', createRegExpLiteral, NodeKind.RegExpLiteral ],
-  [ 'DateTimeLiteral', createDateTimeLiteral, NodeKind.DateTimeLiteral ],
-  [ 'SymbolLiteral', createSymbolLiteral, NodeKind.SymbolLiteral ],
-  [ 'IntegerLiteral', createIntegerLiteral, NodeKind.IntegerLiteral ],
-  [ 'DecimalLiteral', createDecimalLiteral, NodeKind.DecimalLiteral ],
-  [ 'ImaginaryNumberLiteral', createImaginaryNumberLiteral, NodeKind.ImaginaryNumberLiteral ],
-  [ 'GenericIterable', createGenericIterable, NodeKind.GenericIterable ],
-  [ 'EnumMemberDeclaration', createEnumMemberDeclaration, NodeKind.EnumMemberDeclaration ],
-  [ 'TupleNode', createTupleNode, NodeKind.Tuple ],
-  [ 'ObjectNode', createObjectNode, NodeKind.Object ],
-  [ 'ClassDeclaration', createClassDeclaration, NodeKind.ClassDeclaration ],
-  [ 'AnonymousClass', createAnonymousClass, NodeKind.AnonymousClass ],
-  [ 'InterfaceDeclaration', createInterfaceDeclaration, NodeKind.InterfaceDeclaration ],
-  [ 'PropertyDeclaration', createPropertyDeclaration, NodeKind.PropertyDeclaration ],
-  [ 'MethodDeclaration', createMethodDeclaration, NodeKind.MethodDeclaration ],
-  [ 'DateNode', createDateNode, NodeKind.Date ],
-  [ 'DateTimeNode', createDateTimeNode, NodeKind.DateTime ],
-  [ 'FunctionDeclaration', createFunctionDeclaration, NodeKind.FunctionDeclaration ],
-  [ 'AnonymousFunctionNode', createAnonymousFunctionNode, NodeKind.AnonymousFunction ],
-  [ 'SignatureNode', createSignatureNode, NodeKind.Signature ],
-  [ 'ParameterNode', createParameterNode, NodeKind.Parameter ],
-  [ 'TypeParameterDeclaration', createTypeParameterDeclaration, NodeKind.TypeParameterDeclaration ],
-  [ 'TypeDeclaration', createTypeDeclaration, NodeKind.TypeDeclaration ],
-  [ 'VariableDeclaration', createVariableDeclaration, NodeKind.VariableDeclaration ],
-  [ 'UnionNode', createUnionNode, NodeKind.Union ],
-  [ 'IntersectionNode', createIntersectionNode, NodeKind.Intersection ],
-  [ 'TopNode', createTopNode, NodeKind.Anything ],
-  [ 'BottomNode', createBottomNode, NodeKind.Nothing ],
-  [ 'AnythingNode', createAnythingNode, NodeKind.Anything ],
-  [ 'NothingNode', createNothingNode, NodeKind.Nothing ],
-  [ 'NullNode', createNullNode, NodeKind.Null ],
+  [ 'NamespaceNode', createNamespaceNode, NodeKind.Namespace, [ isNamespaceNode, isModuleNode ] ],
+  [ 'SourceFileNode', createSourceFileNode, NodeKind.SourceFile, [ isSourceFileNode, isModuleNode ] ],
+  [ 'StringNode', createStringNode, NodeKind.String, isStringNode ],
+  [ 'CharacterNode', createCharacterNode, NodeKind.Character, isCharacterNode ],
+  [ 'ByteNode', createByteNode, NodeKind.Byte, isByteNode ],
+  [ 'RegExpNode', createRegExpNode, NodeKind.RegExp, isRegExpNode ],
+  [ 'SymbolNode', createSymbolNode, NodeKind.Symbol, isSymbolNode ],
+  [ 'BooleanNode', createBooleanNode, NodeKind.Boolean, isBooleanNode ],
+  [ 'IntegerNode', createIntegerNode, NodeKind.Integer, [ isIntegerNode, isRealNumberNode, isNumericNode ] ],
+  [ 'DecimalNumberNode', createDecimalNumberNode, NodeKind.Decimal, [ isDecimalNumberNode, isRealNumberNode, isNumericNode ] ],
+  [ 'ComplexNumberNode', createComplexNumberNode, NodeKind.ComplexNumber, [ isComplexNumberNode, isNumericNode ] ],
+  [ 'NotANumberNode', createNotANumberNode, NodeKind.NotANumber, [ isNotANumberNode, isNumericNode ] ],
+  [ 'InfinityNode', createInfinityNode, NodeKind.Infinity, [ isInfinityNode, isNumericNode ] ],
+  [ 'StringLiteral', createStringLiteral, NodeKind.StringLiteral, isStringLiteral ],
+  [ 'TrueLiteral', createTrueLiteral, NodeKind.TrueLiteral, isTrueLiteral ],
+  [ 'FalseLiteral', createFalseLiteral, NodeKind.FalseLiteral, isFalseLiteral ],
+  [ 'RegExpLiteral', createRegExpLiteral, NodeKind.RegExpLiteral, isRegExpLiteral ],
+  [ 'DateTimeLiteral', createDateTimeLiteral, NodeKind.DateTimeLiteral, isDateTimeLiteral ],
+  [ 'SymbolLiteral', createSymbolLiteral, NodeKind.SymbolLiteral, isSymbolLiteral ],
+  [ 'IntegerLiteral', createIntegerLiteral, NodeKind.IntegerLiteral, [ isIntegerLiteral, isRealNumberLiteral ] ],
+  [ 'DecimalLiteral', createDecimalLiteral, NodeKind.DecimalLiteral, [ isDecimalLiteral, isRealNumberLiteral ] ],
+  [ 'ImaginaryNumberLiteral', createImaginaryNumberLiteral, NodeKind.ImaginaryNumberLiteral, isImaginaryNumberLiteral ],
+  [ 'GenericIterable', createGenericIterable, NodeKind.GenericIterable, [ isGenericIterable, isIterableNode ] ],
+  [ 'EnumMemberDeclaration', createEnumMemberDeclaration, NodeKind.EnumMemberDeclaration, [ isEnumMemberDeclaration, isDeclaration, isNamedNode ] ],
+  [ 'TupleNode', createTupleNode, NodeKind.Tuple, isTupleNode ],
+  [ 'ObjectNode', createObjectNode, NodeKind.Object, [ isObjectNode, isObjectLikeNode ] ],
+  [ 'ClassDeclaration', createClassDeclaration, NodeKind.ClassDeclaration, [ isClassDeclaration, isObjectLikeNode, isClassLikeNode, isNamedNode ] ],
+  [ 'AnonymousClass', createAnonymousClass, NodeKind.AnonymousClass, [ isAnonymousClass, isClassLikeNode, isObjectLikeNode ] ],
+  [ 'InterfaceDeclaration', createInterfaceDeclaration, NodeKind.InterfaceDeclaration, [ isInterfaceDeclaration, isObjectLikeNode, isClassLikeNode, isNamedNode ] ],
+  [ 'PropertyDeclaration', createPropertyDeclaration, NodeKind.PropertyDeclaration, [ isPropertyDeclaration, isObjectLikeMember, isNamedNode ] ],
+  [ 'MethodDeclaration', createMethodDeclaration, NodeKind.MethodDeclaration, [ isMethodDeclaration, isObjectLikeMember, isNamedNode ] ],
+  [ 'DateNode', createDateNode, NodeKind.Date, [ isDateNode, isDateLikeNode ] ],
+  [ 'DateTimeNode', createDateTimeNode, NodeKind.DateTime, [ isDateTimeNode, isDateLikeNode ] ],
+  [ 'FunctionDeclaration', createFunctionDeclaration, NodeKind.FunctionDeclaration, [ isFunctionDeclaration, isFunctionNode, isNamedNode ] ],
+  [ 'AnonymousFunctionNode', createAnonymousFunctionNode, NodeKind.AnonymousFunction, [ isAnonymousFunctionNode, isFunctionNode ] ],
+  [ 'SignatureNode', createSignatureNode, NodeKind.Signature, isSignatureNode ],
+  [ 'ParameterNode', createParameterNode, NodeKind.Parameter, [ isParameterNode, isNamedNode ] ],
+  [ 'TypeParameterDeclaration', createTypeParameterDeclaration, NodeKind.TypeParameterDeclaration, [ isTypeParameterDeclaration, isDeclaration, isNamedNode ] ],
+  [ 'TypeDeclaration', createTypeDeclaration, NodeKind.TypeDeclaration, [ isTypeDeclaration, isDeclaration, isNamedNode ] ],
+  [ 'VariableDeclaration', createVariableDeclaration, NodeKind.VariableDeclaration, [ isVariableDeclaration, isDeclaration, isNamedNode ] ],
+  [ 'UnionNode', createUnionNode, NodeKind.Union, isUnionNode ],
+  [ 'IntersectionNode', createIntersectionNode, NodeKind.Intersection, isIntersectionNode ],
+  [ 'TopNode', createTopNode, NodeKind.Anything, isTopNode ],
+  [ 'BottomNode', createBottomNode, NodeKind.Nothing, isBottomNode ],
+  [ 'AnythingNode', createAnythingNode, NodeKind.Anything, isAnythingNode ],
+  [ 'NothingNode', createNothingNode, NodeKind.Nothing, isNothingNode ],
+  [ 'NullNode', createNullNode, NodeKind.Null, isNullNode ],
 
   /* With special tests */
-  [ 'DefinitionNode', createDefinitionNode, NodeKind.Definition ],
-  [ 'ArrayNode', createArrayNode, NodeKind.Array ],
-  [ 'MapNode', createMapNode, NodeKind.Map ],
-  [ 'MultiSetNode', createMultiSetNode, NodeKind.MultiSet ],
-  [ 'SetNode', createSetNode, NodeKind.Set ],
-  [ 'ListNode', createListNode, NodeKind.List ],
-  [ 'LinkedListNode', createLinkedListNode, NodeKind.LinkedList ],
-  [ 'EnumDeclaration', createEnumDeclaration, NodeKind.EnumDeclaration ],
-  [ 'TypeArgumentNode', createTypeArgumentNode, NodeKind.TypeArgument ],
-  [ 'ReferenceNode', createReferenceNode, NodeKind.Reference ],
+  [ 'DefinitionNode', createDefinitionNode, NodeKind.Definition, [ isDefinitionNode, isNamedNode ] ],
+  [ 'ArrayNode', createArrayNode, NodeKind.Array, [ isArrayNode, isIterableNode ] ],
+  [ 'MapNode', createMapNode, NodeKind.Map, [ isMapNode, isIterableNode ] ],
+  [ 'MultiSetNode', createMultiSetNode, NodeKind.MultiSet, [ isMultiSetNode, isIterableNode ] ],
+  [ 'SetNode', createSetNode, NodeKind.Set, [ isSetNode, isIterableNode ] ],
+  [ 'ListNode', createListNode, NodeKind.List, [ isListNode, isIterableNode ] ],
+  [ 'LinkedListNode', createLinkedListNode, NodeKind.LinkedList, [ isLinkedListNode, isIterableNode ] ],
+  [ 'EnumDeclaration', createEnumDeclaration, NodeKind.EnumDeclaration, [ isEnumDeclaration, isDeclaration, isNamedNode ] ],
+  [ 'TypeArgumentNode', createTypeArgumentNode, NodeKind.TypeArgument, [ isTypeArgumentNode, isNamedNode ] ],
+  [ 'ReferenceNode', createReferenceNode, NodeKind.Reference, isReferenceNode ],
 ];
 
 const objectFactories: Array<[ string, (properties?: any) => Node ]> = [
@@ -98,9 +111,9 @@ const objectFactories: Array<[ string, (properties?: any) => Node ]> = [
  * Test
  * ****************************************************************************************************************** */
 
-describe(`Node Factories`, () => {
-  describe(`Creates with correct properties`, () => {
-    test.each(factories)(`%s`, (name, factoryFn, kind) => {
+describe(`Node Factories & TypeGuards`, () => {
+  describe(`Creates with correct properties & typeGuards work`, () => {
+    test.each(factories)(`%s`, (name, factoryFn, kind, guards) => {
       const nodeIsKind = <K extends NodeKind>(node: Node, k: K): node is NodeForKind<K> => (kind === k);
       const props = { a: 1, b: 2 };
       const { baseFlags, baseTypeFlags } = nodeMetadata[kind];
@@ -111,6 +124,8 @@ describe(`Node Factories`, () => {
       expect(node).toMatchObject(props);
       if (baseFlags) expect(node.flags & baseFlags.reduce((p, c) => p + c)).toBeTruthy();
       if (baseTypeFlags) expect(node.typeFlags & baseTypeFlags.reduce((p, c) => p + c)).toBeTruthy();
+
+      [ guards ].flat().forEach(guard => expect(guard(node)).toBe(true));
 
       /* Custom properties set in factory function */
       if (nodeIsKind(node, NodeKind.Array)) {
@@ -128,7 +143,7 @@ describe(`Node Factories`, () => {
     });
   })
 
-  describe(`Property Descriptor behaviour is correct`, () => {
+  describe(`Property Descriptor behaviour`, () => {
     test(`DefinitionNode -> definitionFlags`, () => {
       let node: DefinitionNode = createDefinitionNode({
         name: 'd',

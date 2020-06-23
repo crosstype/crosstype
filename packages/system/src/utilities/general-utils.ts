@@ -43,19 +43,15 @@ export const reverseMap = <TKeyType, TValType>(map: Map<TKeyType, TValType>): Ma
   new Map([ ...map.entries() ].map(([ k, v ]) => [ v, k ]));
 
 /**
- * Return value || String(v) if truthy otherwise returns an empty string
- * @param v - var to check for truthiness
- * @param value - value to use
- * @returns
- * - **(v is truthy & val is provided)** val
- * - **(v is truthy & val not provided)** v
- * - **(v is not truthy)** ''
+ * If value is truthy, returns `value` (or `v` if no `value` provided), otherwise, returns an empty string
+ * @param v - Var to check for truthiness
+ * @param value - Value to return if true
  */
 export const truthyStr = (v: any, value?: string): string =>
   v ? ((value !== undefined) ? value : String(v)) : '';
 
 /**
- * Filter object to only include entries by keys (Based on TypeScript Pick)
+ * Filter object, only including specific properties (Based on TypeScript Pick)
  * @param obj - Object to filter
  * @param keys - Keys to extract
  * @example
@@ -63,14 +59,14 @@ export const truthyStr = (v: any, value?: string): string =>
  * obj = pick(obj, 'a', 'b')            // Type is { a: number, c: string }
  */
 export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
-  return keys.reduce((p, key) => {
-    if ((obj as any).hasOwnProperty(key)) p[key] = obj[key];
-    return p;
-  }, <any>{}) as Pick<T, K>;
+  const descriptors = Object.getOwnPropertyDescriptors(obj);
+  return accForEach(Object.entries(descriptors), <typeof obj>{}, ([ key, descriptor], res) => {
+    if (keys.includes(<any>key)) Object.defineProperty(res, key, descriptor);
+  });
 }
 
 /**
- * Filter object to only include entries by keys (Based on TypeScript Pick)
+ * Filter object, excluding specific properties (Based on TypeScript Pick)
  * @param obj - Object to filter
  * @param keys - Keys to exclude
  * @example
@@ -78,10 +74,10 @@ export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
  * const obj2 = omit(obj, 'a', 'c')       // Type is { b: number }
  */
 export function omit<T, K extends keyof T>(obj: T, ...keys: K[]): Omit<T, K> {
-  return keys.reduce((r, key) => {
-    delete r[key];
-    return r;
-  }, { ...obj }) as Omit<T, K>
+  const descriptors = Object.getOwnPropertyDescriptors(obj);
+  return accForEach(Object.entries(descriptors), <typeof obj>{}, ([ key, descriptor], res) => {
+    if (!keys.includes(<any>key)) Object.defineProperty(res, key, descriptor);
+  });
 }
 
 /**
@@ -142,8 +138,14 @@ export function accForEach<T, Acc>(
   acc: Acc,
   cb: (item: T, acc: Acc, index: number, iterable: Iterable<T>
   ) => void): Acc {
-  const i = 0;
-  for (const item of iterable) cb(item, acc, i, iterable);
+  if (Array.isArray(iterable)) iterable.forEach((item, i) => cb(item, acc, i, iterable));
+  else {
+    let i = 0;
+    for (const item of iterable) {
+      cb(item, acc, i, iterable);
+      i++;
+    }
+  }
   return acc;
 }
 

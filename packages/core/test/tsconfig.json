@@ -5,6 +5,7 @@
   "compilerOptions": {
     "types": [ "jest", "node" ],
     "noEmit": true,
+    "incremental": false,
 
     "baseUrl": "../src",
     "paths": {

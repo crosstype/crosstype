@@ -111,8 +111,8 @@ const objectFactories: Array<[ string, (properties?: any) => Node ]> = [
  * Test
  * ****************************************************************************************************************** */
 
-describe(`Node Factories & TypeGuards`, () => {
-  describe(`Creates with correct properties & typeGuards work`, () => {
+describe(`Node Tests`, () => {
+  describe(`Factories & TypeGuards`, () => {
     test.each(factories)(`%s`, (name, factoryFn, kind, guards) => {
       const nodeIsKind = <K extends NodeKind>(node: Node, k: K): node is NodeForKind<K> => (kind === k);
       const props = { a: 1, b: 2 };
@@ -143,7 +143,7 @@ describe(`Node Factories & TypeGuards`, () => {
     });
   })
 
-  describe(`Property Descriptor behaviour`, () => {
+  describe(`Property Descriptor Behaviours`, () => {
     test(`DefinitionNode -> definitionFlags`, () => {
       let node: DefinitionNode = createDefinitionNode({
         name: 'd',

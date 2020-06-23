@@ -83,6 +83,7 @@ export function createNode(
   properties: CreateNodeProperties<Node>,
   additionalDescriptors?: PropertyDescriptorMap
 ): Node {
+  properties = Object.assign({}, properties);
   const node = new NodeObject(kind, properties.origin, properties.compileOptions);
   const { baseTypeFlags, baseFlags, childContainerProperties } = nodeMetadata[kind];
 
@@ -101,11 +102,11 @@ export function createNode(
         (<any>properties)[key] = cloneNode(item);
       else if (NodeMap.isNodeMap(item) && item.find(n => !!n.parent))
         (<any>properties)[key] = NodeMap.from(item.values(), node => {
-          return (node.parent) ? node : cloneNode(node)
+          return (!node.parent) ? node : cloneNode(node)
         });
       else if (NodeSet.isNodeSet(item) && item.find(n => !!n.parent))
         (<any>properties)[key] = NodeSet.from(item, node => {
-          return (node.parent) ? node : cloneNode(node)
+          return (!node.parent) ? node : cloneNode(node)
         });
     }
   }

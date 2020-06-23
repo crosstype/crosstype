@@ -1,3 +1,6 @@
+/**
+ * The following are tests for node factories, TypeGuards, and general Node property descriptor behaviour
+ */
 import { DefinitionNode, Node, ObjectLikeNode } from '#ast/node-types';
 import { DefinitionFlags, NodeKind, NodeObject, OrderKind } from '#ast';
 import {

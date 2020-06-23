@@ -68,7 +68,7 @@ cloneNode.cloneItem = function(updatedNodes: Map<Node, Node | undefined>, item: 
 
 
 /* ****************************************************************************************************************** */
-// region: Utilities
+// region: Utility
 /* ****************************************************************************************************************** */
 
 export function cloneNode<T extends Node>(node: T): T {

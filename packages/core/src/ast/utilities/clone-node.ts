@@ -39,11 +39,11 @@ cloneNode.copyNode = function(updatedNodes: Map<Node, Node | undefined>, node: N
  */
 cloneNode.cloneItem = function(updatedNodes: Map<Node, Node | undefined>, item: any, childContainer?: boolean): any {
   /* Handle Node or Node containers */
-  if (NodeSet.isNodeSet(item)) {
+  if (item instanceof NodeSet) {
     const nodes = item.toArray();
     return childContainer ? new NodeSet(nodes.map(node => cloneNode.copyNode(updatedNodes, node))) : new NodeSet(nodes);
   }
-  if (NodeMap.isNodeMap(item)) {
+  if (item instanceof NodeMap) {
     const nodes = item.toArray();
     return childContainer ? new NodeMap(nodes.map(node => cloneNode.copyNode(updatedNodes, node)) as NamedNode[]) : new NodeMap(nodes);
   }

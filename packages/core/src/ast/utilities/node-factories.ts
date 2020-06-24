@@ -100,11 +100,11 @@ export function createNode(
       const item = (<any>properties)[key];
       if (isNode(item) && item.parent)
         (<any>properties)[key] = cloneNode(item);
-      else if (NodeMap.isNodeMap(item) && item.find(n => !!n.parent))
+      else if (item instanceof NodeMap && item.find(n => !!n.parent))
         (<any>properties)[key] = NodeMap.from(item.values(), node => {
           return (!node.parent) ? node : cloneNode(node)
         });
-      else if (NodeSet.isNodeSet(item) && item.find(n => !!n.parent))
+      else if (item instanceof NodeSet && item.find(n => !!n.parent))
         (<any>properties)[key] = NodeSet.from(item, node => {
           return (!node.parent) ? node : cloneNode(node)
         });

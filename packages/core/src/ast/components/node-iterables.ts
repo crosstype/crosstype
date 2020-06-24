@@ -1,19 +1,44 @@
 import { NamedNode, Node } from '#ast/node-types';
 import { isNamedNode, isNode } from '#ast/utilities/node-typeguards';
 import { accForEach } from '@crosstype/system';
+import { mixin } from '@crosstype/system/dist/utilities/mixins';
+
+
+/* ****************************************************************************************************************** */
+// region: Types
+/* ****************************************************************************************************************** */
+// The following types are composed using declaration merging (interface, class, and namespace sharing a name)
+
+export interface NodeSet<T extends Node> extends NodeIterable<T>, Set<T> { }
+
+export interface NodeMap<T extends NamedNode> extends NodeIterable<T>, Map<T['name'], T> { }
+
+export interface ReadonlyNodeSet<T extends Node> extends
+  Omit<NodeSet<T>, Exclude<keyof Set<T>, keyof ReadonlySet<T>>> { }
+
+export interface ReadonlyNodeMap<T extends NamedNode> extends
+  Omit<NodeMap<T>, Exclude<keyof Map<T['name'], T>, keyof ReadonlyMap<T['name'], T>>> { }
+
+// endregion
 
 
 /* ****************************************************************************************************************** */
 // region: Helpers
 /* ****************************************************************************************************************** */
 
-const getValidNodes = <T extends Node>(n: T[] | NodeSet<T>): T[] | undefined => {
-  if (!n) return void 0;
+function getIterableCreateParam<T extends Node>(cls: typeof NodeMap | typeof NodeSet, nodes: T[] | NodeSet<T> | undefined):
+  any[]
+{
+  if (!nodes) return [];
 
-  const arr = NodeSet.isNodeSet(n) ? n.toArray() : n as Node[];
-  return arr.filter((i: any) => isNode(i)) as T[];
+  const arr = (nodes instanceof NodeSet ? nodes.toArray() : nodes as Node[])
+    .filter((i: any) => isNode(i) && ((cls === NodeSet) || isNamedNode(i)));
+
+  return (cls === NodeMap) ? (<NamedNode<any>[]>arr).map(n => [ n.name, n ]) :
+         arr;
 }
 
+// NOTE: This logic will be cleaned up and changed when parser logic is implemented.
 function createFrom<T extends { new(nodes?: Node[]): any } | { new(nodes?: NamedNode[]): any }>
 (cls: T, args: IArguments): InstanceType<T> {
   if (!args[0]) return new cls();
@@ -42,89 +67,122 @@ function createFrom<T extends { new(nodes?: Node[]): any } | { new(nodes?: Named
 
 // endregion
 
-/* ****************************************************************************************************************** *
- * Readonly Types
- * ****************************************************************************************************************** */
 
-export type ReadonlyNodeSet<T extends Node> = Omit<NodeSet<T>, Exclude<keyof Set<T>, keyof ReadonlySet<T>>>
-export type ReadonlyNodeMap<T extends NamedNode> =
-  Omit<NodeMap<T>, Exclude<keyof Map<T['name'], T>, keyof ReadonlyMap<T['name'], T>>>
+/* ****************************************************************************************************************** */
+// region: Base Class
+/* ****************************************************************************************************************** */
 
-
-/* ****************************************************************************************************************** *
- * NodeSet
- * ****************************************************************************************************************** */
+type MapOrSet = Set<any> | Map<any, any>
 
 /**
- * NodeSet is an iterable collection of nodes
+ * Mixin for node iterables
  */
-export class NodeSet<T extends Node> extends Set<T> {
-  constructor(nodes?: T[]) {
-    super(getValidNodes(nodes as T[]));
-  }
-
-  /* ********************************************************* *
-   * Properties
-   * ********************************************************* */
-
-  get isEmpty(): boolean {
-    return !this.size;
-  }
-
-  /* ********************************************************* *
-   * Methods
-   * ********************************************************* */
+abstract class NodeIterable<T extends Node> {
+  private thisProxy!: this;
 
   /**
-   * Convert to array
+   * Creates a proxy for Set/Map which ensures prototype functions are always bound + allows synthetic array-like access
+   * for elements
+   */
+  static createIterableProxy(iterable: MapOrSet) {
+    return new Proxy(iterable, {
+      get(target: any, key: any) {
+        let prop = target[key];
+
+        /* If prop is function from the prototype-chain, bind it */
+        if ((typeof prop === 'function') && !target.hasOwnProperty(prop))
+          for (let proto = Object.getPrototypeOf(iterable); proto; proto = Object.getPrototypeOf(proto))
+            if (proto.hasOwnProperty(key) && (typeof proto[key] === 'function'))
+              return proto[key].bind(target);
+
+        // If key is a number, synthesize array-like access
+        if (((typeof key === 'string') || (typeof key === 'number')) && !isNaN(+key)) return target.getValueByIndex(+key)
+
+        return target[key] || void 0;
+      }
+    });
+  }
+
+  getValueByIndex(this: MapOrSet, index: number) {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof index !== 'number') throw new TypeError(`Index must be a number!`);
+    let i = 0;
+    for (const item of this.values()) if (i++ === index) return item;
+    throw new RangeError(`Index ${index} out of bounds! [0-${i-1}]`);
+  }
+
+  get isEmpty(): boolean { return !(<any>this).size }
+
+  /**
+   * Convert to array of nodes
    * @param undefinedIfEmpty - If specified, returns undefined if set is empty
    */
-  toArray<B>(undefinedIfEmpty?: B): B extends true ? T[] | undefined : T[]
-  toArray<B>(undefinedIfEmpty?: B): Node[] | undefined {
+  toArray<B extends boolean | undefined = undefined>(undefinedIfEmpty?: B):
+    B extends true ? T[] | undefined : T[]
+  toArray(this: this & MapOrSet, undefinedIfEmpty?: boolean): Node[] | undefined {
     return (undefinedIfEmpty && this.isEmpty) ? void 0 : [ ...this.values() ];
   }
 
   /**
-   * Convert to NodeMap
-   * Note: Only includes members which have a name property (NamedNode)
+   * @returns this or undefined if no members
    */
-  toNodeMap(): Node extends T ? NodeMap<NamedNode> : NodeMap<Extract<T, NamedNode>>
-  toNodeMap(): NodeMap<any> {
-    return accForEach(this, new NodeMap<NamedNode>(), (n: Node, acc) => {
-      if (isNamedNode(n)) acc.set(n.name, n);
-    });
-  }
-
-  /**
-   * @returns Current set or undefined if no elements inside
-   */
-  orUndefinedIfEmpty(): NodeSet<T> | undefined {
-    return this.isEmpty ? this : void 0;
-  }
+  orUndefinedIfEmpty(): this | undefined { return !this.isEmpty ? this.thisProxy : void 0 }
 
   /**
    * Remove invalid (non-node) members
    */
-  prune(): void {
-    [ ...this ].forEach(n => !isNode(n) && this.delete(n));
+  prune(this: MapOrSet): void {
+    if (this instanceof Set) [ ...this ].forEach(n => !isNode(n) && this.delete(n))
+    else [ ...this.entries() ].forEach(([k, n]) => !isNode(n) && (<Map<any,any>>this).delete(k));
   }
 
   /**
-   * Find member
+   * Find node
    */
-  find(predicate: (node: T) => boolean): T | undefined
-  find(predicate: <T>(node: T) => node is T): T | undefined
-  find(predicate: (node: T) => boolean): T | undefined {
-    return this.toArray().find(predicate);
+  find<U extends Node>(predicate: (node: U) => boolean): U | undefined
+  find<U extends Node>(predicate: (node: U) => node is U): U | undefined
+  find(predicate: (node: Node) => boolean): Node | undefined {
+    return this.toArray()?.find(predicate);
   }
 
+  /**
+   * Add a node
+   */
+  add(node: T): this
+  add(this: this & MapOrSet, node: Node): this {
+    if (this instanceof Set) Set.prototype.add.call(this, node);
+    else this.set((<NamedNode<any>>node).name, node);
 
-  /* ********************************************************* *
-   * Static Methods
-   * ********************************************************* */
+    return this.thisProxy;
+  }
+}
 
-  static isNodeSet(v: any): v is NodeSet<Node> {
-    return v instanceof NodeSet;
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: Classes
+/* ****************************************************************************************************************** */
+
+@mixin(NodeIterable)
+export class NodeSet<T extends Node> extends Set<T> {
+  [idx:number]: any
+
+  constructor(nodes?: T[]) {
+    super(getIterableCreateParam(NodeSet, nodes));
+    (<any>this).thisProxy = NodeIterable.createIterableProxy(this);
+    return (<any>this).thisProxy;
+  }
+
+  /**
+   * Convert NodeSet to NodeMap
+   * Note: Only includes members which have a name property (NamedNode)
+   */
+  toNodeMap(): Extract<NodeSet.GetNodeType<this>, NamedNode> extends never ? NodeMap<NamedNode> : NodeMap<Extract<NodeSet.GetNodeType<this>, NamedNode>>
+  toNodeMap(): NodeMap<any> {
+    return accForEach(this, new NodeMap<NamedNode>(), (n: Node, res) => {
+      if (isNamedNode(n)) res.set(n.name, n);
+    });
   }
 
   /* @formatter:off */
@@ -147,84 +205,20 @@ export class NodeSet<T extends Node> extends Set<T> {
   }
 }
 
-
-/* ****************************************************************************************************************** *
- * NodeMap
- * ****************************************************************************************************************** */
-
-/**
- * NodeMap is an iterable collection of nodes which all have names associated
- */
+@mixin(NodeIterable)
 export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
-  constructor(nodes?: T[] | NodeSet<T>) {
-    super(getValidNodes(nodes as T[] | NodeSet<T>)?.map(n => [ n.name, n ]));
-  }
+  [idx:number]: any
 
-  /* ********************************************************* *
-   * Properties
-   * ********************************************************* */
-
-  get isEmpty(): boolean {
-    return !this.size;
-  }
-
-  /* ********************************************************* *
-   * Methods
-   * ********************************************************* */
-
-  /**
-   * Convert to array of nodes
-   * @param undefinedIfEmpty - If specified, returns undefined if set is empty
-   */
-  toArray<B>(undefinedIfEmpty?: B): B extends true ? T[] | undefined : T[]
-  toArray<B>(undefinedIfEmpty?: B): Node[] | undefined | Array<any> {
-    return (undefinedIfEmpty && this.isEmpty) ? void 0 : [ ...this.values() ];
+  constructor(nodes?: T[]) {
+    super(getIterableCreateParam(NodeMap, nodes));
+    (<any>this).thisProxy = NodeIterable.createIterableProxy(this);
+    return (<any>this).thisProxy;
   }
 
   /**
-   * Convert to NodeSet
+   * Convert NodeMap to NodeSet
    */
-  toNodeSet(): NodeSet<T> {
-    return new NodeSet<T>(this.toArray());
-  }
-
-  /**
-   * @returns Current set or undefined if no elements inside
-   */
-  orUndefinedIfEmpty(): NodeMap<T> | undefined {
-    return this.isEmpty ? this : void 0;
-  }
-
-  /**
-   * Remove invalid (non-node) members
-   */
-  prune(): void {
-    [ ...this.entries() ].forEach(([ key, n ]) => !isNode(n) && this.delete(key));
-  }
-
-  /**
-   * Find member
-   */
-  find(predicate: (node: Node) => boolean): T | undefined
-  find<U extends Node>(predicate: (node: Node) => node is U): U | undefined
-  find(predicate: (node: T) => boolean): T | undefined {
-    return this.toArray().find(predicate);
-  }
-
-  /**
-   * Add a node
-   */
-  add(node: T): void {
-    this.set(node.name, node);
-  }
-
-  /* ********************************************************* *
-   * Static Methods
-   * ********************************************************* */
-
-  static isNodeMap<T extends NamedNode>(v: any): v is NodeMap<T> {
-    return v instanceof NodeMap;
-  }
+  toNodeSet(): NodeSet<NodeMap.GetNodeType<this>> { return new NodeSet(this.toArray()) as any }
 
   /* @formatter:off */
   /**
@@ -246,6 +240,20 @@ export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
   }
 }
 
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: Namespace Extensions
+/* ****************************************************************************************************************** */
+
 export namespace NodeMap {
-  export type GetKeyType<T> = T extends NodeMap<infer U> ? U['name'] : never
+  export type GetIndexType<T> = T extends NodeMap<infer U> ? U['name'] : never
+  export type GetNodeType<T> = T extends NodeMap<infer U> ? U : never
 }
+
+export namespace NodeSet {
+  export type GetNodeType<T> = T extends NodeSet<infer U> ? U : never
+}
+
+// endregion

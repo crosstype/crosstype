@@ -154,7 +154,7 @@ export class NodeObject implements Node {
     /* Cleanup properties containing children */
     this._metadata.childContainerProperties?.forEach(({ key, optional }) => {
       const item = (<any>this)[key];
-      if (NodeMap.isNodeMap(item) || NodeSet.isNodeSet(item)) {
+      if (item instanceof NodeMap || item instanceof NodeSet) {
         if (optional && !item.size) (<any>this)[key] = void 0;
         item.prune();
       } else if (optional && !isNode(item)) (<any>this)[key] = void 0;

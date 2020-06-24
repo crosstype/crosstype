@@ -2,7 +2,7 @@ import { createGenerator, GeneratorContext } from '@crosstype/build-tools';
 import path from 'path';
 import ts, {
   CompilerHost, InterfaceDeclaration, Program, PropertyAssignment, QualifiedName, ScriptTarget, SourceFile, SyntaxKind,
-  Type, TypeNode
+  Type, TypeNode, TypeFlags, UnionType
 } from '@crosstype/system/typescript';
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
 import { tsquery } from '@phenomnomnominal/tsquery';
@@ -293,12 +293,20 @@ function entry(
    * Generates node-metadata.ts
    */
   function generateNodeMetadata(context: GeneratorContext) {
+    const isValidChildContainerType = (type: Type) =>
+      // Include if single Node
+      (checker.isTypeAssignableTo(type, detail.baseNodeInterfaceType)) ||
+      // Include if non-readonly Node Iterable
+      ([ 'NodeMap', 'NodeSet' ].includes(type.symbol?.getEscapedName().toString()));
+
     const propertyAssignments = [ ...detail.nodeInterfaces.entries() ].map(([ node, { typeFlags, flags } ]) => {
         const nodeKindName = (<any>node.members).find((m: any) => m.name.text === 'kind')!.type.typeName as QualifiedName;
         const childContainers: { key: string, optional: boolean }[] = [];
+        const nodeType = checker.getTypeAtLocation(node);
 
         /* Iterate members & find child container keys */
-        for (const m of node.members) {
+        for (const propSymbol of nodeType.getProperties()) {
+          const m = propSymbol.valueDeclaration;
           if (!ts.isPropertySignature(m) || !m.type) continue;
 
           const name = m.name.getText();
@@ -306,14 +314,10 @@ function entry(
           const isReadonly = !!m.modifiers?.some(modifier => modifier.kind === SyntaxKind.ReadonlyKeyword);
           const isOptional = !!m.questionToken;
 
-          if (
-            // Exclude if tagged @notChild
-            !m.symbol.getJsDocTags().some(t => t.name.toLowerCase() === 'notchild') &&
-            // Include if non-readonly single Node
-            (checker.isTypeAssignableTo(type, detail.baseNodeInterfaceType) && !isReadonly) ||
-            // Include if non-readonly Node Iterable
-            (ts.isTypeReferenceNode(m.type) && [ 'NodeMap', 'NodeSet' ].includes(m.type.typeName.getText()))
-          )
+          // Do not proceed if tagged @notChild or readonly
+          if (m.symbol.getJsDocTags().some(t => t.name.toLowerCase() === 'notchild') || isReadonly) continue;
+
+          if ((type.isUnion() && type.types.every(isValidChildContainerType)) || isValidChildContainerType(type))
             childContainers.push({ key: name, optional: isOptional });
         }
 

@@ -1,15 +1,18 @@
-import { NamedNode, Node, NodeKind, NodeObject, ReferenceNode, TypeFlags } from '#ast';
+import { Node, NodeObject } from '#ast';
 import { NodeMap, NodeSet } from '#ast/components';
 import { cloneNode } from '#ast/utilities/clone-node'
 import * as nm from '#ast/node-metadata';
 import { omit } from '@crosstype/system';
+import {
+  createFakeNode, createFakeNodes, createFakeReferenceNode, createNodeIterable, fakeNodeKind, getClassStringMap,
+  makeJestSafe
+} from '../../helpers';
 
 
 /* ****************************************************************************************************************** */
 // region: Config
 /* ****************************************************************************************************************** */
 
-const kind = 0;
 const multiNodeCount = 4;
 
 // endregion
@@ -19,27 +22,8 @@ const multiNodeCount = 4;
 // region: Helpers
 /* ****************************************************************************************************************** */
 
-const createFakeNode = (parent?: Node, props?: any) =>
-  new NodeObject(kind, void 0, void 0).updateProperties(<any>{ parent, ...props }) as Node;
-
-const createFakeReferenceNode = (parent: Node | undefined, target: Node) =>
-  createFakeNode(parent).updateProperties(<any>{ kind: NodeKind.Reference, typeFlags: TypeFlags.Reference, target }) as ReferenceNode;
-
-// noinspection JSUnusedLocalSymbols
-const createFakeNodes = (count: number, parent?: any, props?: any) => {
-  const res: NamedNode[] = [];
-  for (let i = 1; i <= count; i++)
-    res.push(createFakeNode(parent).updateProperties(<any>{ name: `Node${i}` }) as any as NamedNode);
-  return res;
-}
-
-const createNodeIterable = <T extends { new(...args: any[]): NodeSet<any> | NodeMap<any> }>(cls: T, nodes: NamedNode[]) =>
-  new cls(nodes)
-
 const isClone = (n: Node) => !!(<any>n).cloned
 const isNotClone = (n: Node) => !(<any>n).cloned
-
-const getComponentMap = (cls: { new(...args: any[]): any }[]) => cls.map(c => <[ string, typeof c ]>[ c.name, c ]);
 
 // endregion
 
@@ -72,7 +56,7 @@ describe(`Node Util -> cloneNode()`, () => {
       updatedNodes.clear();
     })
 
-    describe.each(getComponentMap([ NodeSet, NodeMap ]))(`%s`, (name, cls) => {
+    describe.each(getClassStringMap(NodeSet, NodeMap))(`%s`, (name, cls) => {
       test(`Non child container -> Clones just ${name}`, () => {
         const original = createNodeIterable(cls, createFakeNodes(multiNodeCount));
         const copy = cloneItem(original, /* childContainer */ false);
@@ -131,7 +115,7 @@ describe(`Node Util -> cloneNode()`, () => {
     });
 
     const { cloneNode: { cloneItem: originalCloneItem } } = jest.requireActual('#ast/utilities/clone-node');
-    test.each(getComponentMap([ Array, Set, Map ]))(`%s -> Creates new & calls cloneItem for each member`, (name, cls) => {
+    test.each(getClassStringMap(Array, Set, Map))(`%s -> Creates new & calls cloneItem for each member`, (name, cls) => {
       cloneItemSpy.mockImplementation((updated: any, item: any) => ({ value: item }));
       const items = [ { a: 'hello' }, null, 3, void 0 ].map((item, i) => (cls === Map) ? [ i, item ] : item);
       const original = (cls === Array) ? Array.from(items) : new cls(items);
@@ -171,7 +155,7 @@ describe(`Node Util -> cloneNode()`, () => {
       nonChildKey: 3,
       method1() { return true }
     });
-    const originalMetaEntry = nm.nodeMetadata[kind];
+    const originalMetaEntry = nm.nodeMetadata[fakeNodeKind];
     let copiedNode: Node
     const childContainerProperties = new Map([
       [ 'childKey1', { key: 'childKey1', optional: true } ],
@@ -185,12 +169,12 @@ describe(`Node Util -> cloneNode()`, () => {
         item,
         childContainer
       }));
-      nm.nodeMetadata[kind] = { childContainerProperties };
+      nm.nodeMetadata[fakeNodeKind] = { childContainerProperties };
 
       copiedNode = originalCopyNode(updatedNodes, originalNode);
     });
     afterAll(() => {
-      nm.nodeMetadata[kind] = originalMetaEntry;
+      nm.nodeMetadata[fakeNodeKind] = originalMetaEntry;
     })
 
     test(`Copies all property descriptors & clones their values`, () => {
@@ -202,7 +186,10 @@ describe(`Node Util -> cloneNode()`, () => {
         const isChildContainer = childContainerProperties.has(key);
         const { value } = descriptor
         if (value)
-          expect(value).toMatchObject({ item: originalDescriptor.value, childContainer: isChildContainer })
+          expect(makeJestSafe(value)).toMatchObject({
+            item: makeJestSafe(originalDescriptor.value),
+            childContainer: isChildContainer
+          });
         expect(omit(descriptor, 'value')).toMatchObject(omit(originalDescriptor, 'value'));
       }
     });

@@ -1,23 +1,23 @@
 /**
  * The following are tests for node factories, TypeGuards, and general Node property descriptor behaviour
  */
-import { DefinitionNode, Node, ObjectLikeNode } from '#ast/node-types';
+import { Definition, Node, ObjectLikeNode } from '#ast/node-types';
 import { DefinitionFlags, NodeKind, NodeObject, OrderKind } from '#ast';
 import {
   createAnonymousClass, createAnonymousFunctionNode, createAnythingNode, createArrayNode, createBooleanNode,
   createBottomNode, createByteNode, createCharacterNode, createClassDeclaration, createComplexNumberNode,
   createDateNode, createDateTimeLiteral, createDateTimeNode, createDecimalLiteral, createDecimalNumberNode,
-  createDefinitionNode, createEnumDeclaration, createEnumMemberDeclaration, createFalseLiteral,
-  createFunctionDeclaration, createGenericIterable, createImaginaryNumberLiteral, createInfinityNode,
-  createIntegerLiteral, createIntegerNode, createInterfaceDeclaration, createIntersectionNode, createLinkedListNode,
-  createListNode, createMapNode, createMethodDeclaration, createMultiSetNode, createNamespaceNode, createNotANumberNode,
-  createNothingNode, createNullNode, createObjectNode, createParameterNode, createPropertyDeclaration,
-  createReferenceNode, createRegExpLiteral, createRegExpNode, createSetNode, createSignatureNode, createSourceFileNode,
-  createStringLiteral, createStringNode, createSymbolLiteral, createSymbolNode, createTopNode, createTrueLiteral,
-  createTupleNode, createTypeArgumentNode, createTypeDeclaration, createTypeParameterDeclaration, createUnionNode,
+  createDefinition, createEnumDeclaration, createEnumMemberDeclaration, createFalseLiteral, createFunctionDeclaration,
+  createGenericIterable, createImaginaryNumberLiteral, createInfinityNode, createIntegerLiteral, createIntegerNode,
+  createInterfaceDeclaration, createIntersectionNode, createLinkedListNode, createListNode, createMapNode,
+  createMethodDeclaration, createMultiSetNode, createNamespaceNode, createNotANumberNode, createNothingNode,
+  createNullNode, createObjectNode, createParameterNode, createPropertyDeclaration, createReferenceNode,
+  createRegExpLiteral, createRegExpNode, createSetNode, createSignatureNode, createSourceFileNode, createStringLiteral,
+  createStringNode, createSymbolLiteral, createSymbolNode, createTopNode, createTrueLiteral, createTupleNode,
+  createTypeArgumentNode, createTypeDeclaration, createTypeParameterDeclaration, createUnionNode,
   createVariableDeclaration, isAnonymousClass, isAnonymousFunctionNode, isAnythingNode, isArrayNode, isBooleanNode,
   isBottomNode, isByteNode, isCharacterNode, isClassDeclaration, isClassLikeNode, isComplexNumberNode, isDateLikeNode,
-  isDateNode, isDateTimeLiteral, isDateTimeNode, isDecimalLiteral, isDecimalNumberNode, isDeclaration, isDefinitionNode,
+  isDateNode, isDateTimeLiteral, isDateTimeNode, isDecimalLiteral, isDecimalNumberNode, isDeclaration, isDefinition,
   isEnumDeclaration, isEnumMemberDeclaration, isFalseLiteral, isFunctionDeclaration, isFunctionNode, isGenericIterable,
   isImaginaryNumberLiteral, isInfinityNode, isIntegerLiteral, isIntegerNode, isInterfaceDeclaration, isIntersectionNode,
   isIterableNode, isLinkedListNode, isListNode, isMapNode, isMethodDeclaration, isModuleNode, isMultiSetNode,
@@ -91,7 +91,7 @@ const factories: Array<[ string, (properties?: any) => Node, NodeKind, OneOrMore
   [ 'NullNode', createNullNode, NodeKind.Null, isNullNode ],
 
   /* With special tests */
-  [ 'DefinitionNode', createDefinitionNode, NodeKind.Definition, [ isDefinitionNode, isNamedNode ] ],
+  [ 'Definition', createDefinition, NodeKind.Definition, [ isDefinition, isNamedNode ] ],
   [ 'ArrayNode', createArrayNode, NodeKind.Array, [ isArrayNode, isIterableNode ] ],
   [ 'MapNode', createMapNode, NodeKind.Map, [ isMapNode, isIterableNode ] ],
   [ 'MultiSetNode', createMultiSetNode, NodeKind.MultiSet, [ isMultiSetNode, isIterableNode ] ],
@@ -147,8 +147,8 @@ describe(`Node Tests`, () => {
   })
 
   describe(`Property Descriptor Behaviours`, () => {
-    test(`DefinitionNode -> definitionFlags`, () => {
-      let node: DefinitionNode = createDefinitionNode({
+    test(`Definition -> definitionFlags`, () => {
+      let node: Definition = createDefinition({
         name: 'd',
         declarations: new NodeMap<RootDeclaration>(),
         primary: false
@@ -261,6 +261,26 @@ describe(`Node Tests`, () => {
       expect(node.methods!.toArray()).toEqual([ method ]);
     });
 
-    // NOTE - ReferenceNode 'target' logic in separate test file -> reference-node.test.ts
+    // TODO - After Revising Target logic
+    describe(`ReferenceNode -> target`, () => {
+      // const rootNode = createSourceFileNode({
+      //   name: 'File',
+      //   language: 'typescript',
+      //   fileName: 'a.ts',
+      //   definitions: new NodeMap([
+      //     createDefinition({
+      //       name: 'Type1',
+      //       primary: true,
+      //       declarations: new NodeMap([
+      //         createTypeDeclaration({ name: 'Type1', value: createTrueLiteral() })
+      //       ])
+      //     })
+      //   ])
+      // });
+      // const targetType = rootNode.definitions![0].declarations[0];
+      // const refNode = createReferenceNode({ target: targetType });
+
+      test.todo(`Path and targetBase get set`);
+    });
   });
 });

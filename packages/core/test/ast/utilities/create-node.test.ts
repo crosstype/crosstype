@@ -1,15 +1,16 @@
 import * as nm from '#ast/node-metadata';
 import * as cloneUtilModule from '#ast/utilities/clone-node';
-import { NamedNode, Node, NodeFlags, NodeObject, TypeFlags } from '#ast';
+import { Node, NodeFlags, TypeFlags } from '#ast';
 import { createNode } from '#ast/utilities/node-factories';
 import { NodeMap, NodeSet } from '#ast/components';
+import { createFakeNodes, fakeNodeKind, makeJestSafe } from '../../helpers';
 
 
 /* ****************************************************************************************************************** */
 // region: Config
 /* ****************************************************************************************************************** */
 
-const kind = 0;
+const kind = fakeNodeKind;
 const cloneCount = 3;
 const nonCloneCount = 2;
 const baseTypeFlags = [ TypeFlags.Object, TypeFlags.Iterable ];
@@ -21,15 +22,6 @@ const baseFlags = [ NodeFlags.Declaration, NodeFlags.Nested ];
 /* ****************************************************************************************************************** */
 // region: Helpers
 /* ****************************************************************************************************************** */
-
-const createFakeNodes = (count: number, parent?: any | undefined) => {
-  const res: NamedNode[] = [];
-  for (let i = 1; i <= count; i++)
-    res.push(
-      new NodeObject(kind, void 0, void 0)
-        .updateProperties(<any>{ name: `${parent ? 'clone' : 'nonClone'}Node${i}`, parent }) as any as NamedNode);
-  return res;
-}
 
 const isClone = (n: Node) => !!(<any>n).cloned
 const isNotClone = (n: Node) => !(<any>n).cloned
@@ -94,7 +86,7 @@ describe(`Node Util -> createNode()`, () => {
   });
 
   test(`Assigns properties`, () => {
-    expect(node).toMatchObject(props);
+    expect(makeJestSafe(node)).toMatchObject(makeJestSafe(props));
   });
 
   test(`Clones nodes in child props if node has existing parent`, () => {

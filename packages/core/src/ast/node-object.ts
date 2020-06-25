@@ -1,10 +1,10 @@
-import { DefinitionNode, NamedNode, Node, ReferenceNode, SourceFileNode } from '#ast/node-types';
+import { Definition, NamedNode, Node, ReferenceNode, SourceFileNode } from '#ast/node-types';
 import { ModifierFlags, NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { CompileOptionsSet } from '#options/types';
 import { Language } from '#language/language';
 import { accForEach } from '@crosstype/system';
 import { NodeMap, NodeSet, ReadonlyNodeSet } from '#ast/components';
-import { isDefinitionNode, isNamedNode, isNode, isSourceFileNode } from '#ast/utilities/node-typeguards';
+import { isDefinition, isNamedNode, isNode, isSourceFileNode } from '#ast/utilities/node-typeguards';
 import { cloneNode } from '#ast/utilities/clone-node';
 import { NodeMetadata, NodeOrigin } from '#ast/shared-types';
 import { nodeMetadata } from '#ast/node-metadata';
@@ -46,47 +46,61 @@ export class NodeObject implements Node {
 
   getLineage(): Node[] | undefined {
     if (!this.parent) return undefined;
+    const seenParents = new NodeSet();
 
-    const res: Node[] = [];
-    for (let node = this.parent; node; node = node.parent) res.push(node);
-    return res;
+    for (let node = this.parent; node; node = node.parent) {
+      if (seenParents.has(node)) throw new Error(`Error, parent chain is broken. Circular reference.`);
+      seenParents.add(node);
+    }
+    return seenParents.toArray();
   }
 
   getChildren<T extends Node = Node>(deep?: boolean, predicate?: (node: Node) => boolean): NodeSet<T> | undefined {
     const res = new NodeSet<Node>();
-    this.forEachChild(child => {
+
+    const addChild = (child: Node) => {
       if (!predicate || predicate(child)) res.add(child);
-      if (deep) child.getChildren(true, predicate);
-    });
+      if (deep) child.getChildren(true, predicate)?.forEach(addChild);
+    };
+    this.forEachChild(addChild);
 
     return res.orUndefinedIfEmpty() as NodeSet<T> | undefined;
   }
 
   forEachChild<T extends Node>(
     this: T,
-    cb: <K extends keyof T>(child: Node, parentPropertyKey: K, nodeMapKey?: NodeMap.GetKeyType<T[K]>) => void
+    cb: <K extends keyof T>(child: Node, parentPropertyKey: K) => void
   ): void {
     const childContainerKeys = (<NodeObject><unknown>this)._metadata.childContainerProperties?.keys() as Iterable<keyof T>;
     if (!childContainerKeys) return;
 
     for (const propKey of childContainerKeys) {
-      const prop = this[propKey];
-      if (isNode(prop)) cb(prop, propKey);
-      else if (NodeSet.isNodeSet(prop)) prop.forEach(n => cb(n, propKey));
+      const prop = this[propKey] as any as Node | NodeMap<NamedNode> | NodeSet<Node>;
+      if (!prop) return;
+      else if (isNode(prop)) cb(prop, propKey);
+      else prop.forEach((n: Node) => cb(n, propKey));
     }
   }
 
   findParent<T extends Node = Node>(matcher: (node: Node) => boolean): T | undefined {
-    for (let node = this.parent; node; node = node.parent)
+    const seenParents = new NodeSet();
+    for (let node = this.parent; node; node = node.parent) {
+      if (seenParents.has(node)) throw new Error(`Error, parent chain is broken. Circular reference.`);
+      seenParents.add(node);
       if (matcher(node)) return node as T;
+    }
   }
 
   getNamedParent(name?: string | RegExp): NamedNode | undefined {
-    return this.findParent(isNamedNode);
+    if (!name) return this.findParent(isNamedNode);
+    return this.findParent(n =>
+      isNamedNode(n) &&
+      ((name instanceof RegExp) ? ((typeof n.name === 'string') ? name.test(n.name) : false) : n.name === name)
+    );
   }
 
-  getDefinition(): DefinitionNode | undefined {
-    return this.findParent(isDefinitionNode);
+  getDefinition(): Definition | undefined {
+    return this.findParent(isDefinition);
   }
 
   getSourceFile(): SourceFileNode | undefined {
@@ -107,30 +121,26 @@ export class NodeObject implements Node {
     this.removeThisFromParent();
     this.getChildren(/* deep */ true)?.forEach(n => n.delete(brokenReferenceReplacer));
 
-    Object.setPrototypeOf(this, null);
     for (const key in this) if (this.hasOwnProperty(key)) delete this[key];
+    Object.setPrototypeOf(this, null);
   }
 
   clone<T extends Node>(this: T, parent: Node | undefined): T {
-    return cloneNode(this);
+    return (cloneNode(this) as Node).updateProperties({ parent }) as T;
   }
 
   replace<T extends Node>(newNode: T, brokenReferenceReplacer?: (node: Node) => Node, reuseMemory?: boolean): T {
-    this.removeThisFromParent(/* replacementNode */ newNode);
-    this.getChildren(/* deep */ true)?.forEach(n => n.delete(brokenReferenceReplacer));
-
     if (reuseMemory) {
       (<Node>newNode).updateProperties({ parent: this.parent });
 
-      for (const key in this) if (this.hasOwnProperty(key)) delete this[key];  // Clear old properties
-      Object.setPrototypeOf(this, Object.getPrototypeOf(newNode));             // Replace prototype
-      Object.assign(this, newNode);                                            // Copy new properties
+      for (const key in this) if (this.hasOwnProperty(key)) delete this[key];   // Clear old properties
+      Object.defineProperties(this, Object.getOwnPropertyDescriptors(newNode)); // Replace with new
 
       return this as any;
+    } else {
+      this.delete(brokenReferenceReplacer);
+      return newNode;
     }
-
-    this.delete(brokenReferenceReplacer);
-    return newNode;
   }
 
   compile<T extends Language.Names>(language: T, options?: Language.GetLanguage<T>['optionsTypes']['CompileOptions']): string {
@@ -150,18 +160,35 @@ export class NodeObject implements Node {
     return Object.assign(this, props) as T;
   }
 
+  /**
+   * Cleans up child containing properties & internal references set
+   * Removes any non-nodes, sets optional properties that contain empty iterables to undefined
+   */
   cleanup() {
     /* Cleanup properties containing children */
     this._metadata.childContainerProperties?.forEach(({ key, optional }) => {
       const item = (<any>this)[key];
       if (item instanceof NodeMap || item instanceof NodeSet) {
         if (optional && !item.size) (<any>this)[key] = void 0;
-        item.prune();
-      } else if (optional && !isNode(item)) (<any>this)[key] = void 0;
+        else if (item.size) item.prune();
+      }
+      else if (!isNode(item)) (<any>this)[key] = void 0;
     });
 
     // Clean references to this
     this._referencesToThis.prune();
+  }
+
+  /**
+   * Fix node
+   * Runs cleanup() and ensures proper parent set on this node and all descendants
+   */
+  fixup() {
+    (function fixNode(node: Node, parent: Node) {
+      node.cleanup();
+      node.updateProperties({ parent });
+      node.getChildren()?.forEach(n => fixNode(n, node));
+    })(this, this.parent);
   }
 
 
@@ -174,17 +201,18 @@ export class NodeObject implements Node {
    * @param replacementNode - Optionally, replace reference with another node
    */
   private removeThisFromParent(replacementNode?: Node): void {
-    this.parent.forEachChild((child, parentKey, nodeMapKey) => {
+    this.parent?.forEachChild((child, parentKey) => {
       if (child === this) {
         if (this.parent[parentKey] === child)
           return this.parent.updateProperties({ [parentKey]: replacementNode });
 
-        const container = this.parent[parentKey];
+        const container = this.parent[parentKey] as any;
 
-        if (NodeMap.isNodeMap(container)) {
-          if (!replacementNode) container.delete(nodeMapKey!);
-          else container.set(nodeMapKey!, <NamedNode>replacementNode);
-        } else if (NodeSet.isNodeSet(container)) {
+        if (container instanceof NodeMap) {
+          const key = (<NamedNode<any>>child).name;
+          if (!replacementNode) container.delete(key);
+          else container.set(key!, <NamedNode>replacementNode);
+        } else if (container instanceof NodeSet) {
           container.delete(this);
           if (replacementNode) container.add(replacementNode);
         }

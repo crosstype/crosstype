@@ -114,6 +114,8 @@ export function createNode(
   // Assign properties
   Object.assign(node, omit(properties, 'origin', 'compileOptions'), { flags, typeFlags });
 
+  node.fixup();
+
   return node;
 }
 
@@ -226,12 +228,12 @@ export function createStringLiteral(properties: NodeProperties<StringLiteral>): 
   return createNode(NodeKind.StringLiteral, properties);
 }
 
-export function createTrueLiteral(properties: NodeProperties<TrueLiteral>): TrueLiteral {
-  return createNode(NodeKind.TrueLiteral, properties);
+export function createTrueLiteral(properties?: NodeProperties<TrueLiteral>): TrueLiteral {
+  return createNode(NodeKind.TrueLiteral, properties || {});
 }
 
-export function createFalseLiteral(properties: NodeProperties<FalseLiteral>): FalseLiteral {
-  return createNode(NodeKind.FalseLiteral, properties);
+export function createFalseLiteral(properties?: NodeProperties<FalseLiteral>): FalseLiteral {
+  return createNode(NodeKind.FalseLiteral, properties || {});
 }
 
 export function createRegExpLiteral(properties: NodeProperties<RegExpLiteral>): RegExpLiteral {

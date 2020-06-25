@@ -69,7 +69,7 @@ function createFrom<T extends { new(nodes?: Node[]): any } | { new(nodes?: Named
 
 
 /* ****************************************************************************************************************** */
-// region: Base Class
+// region: Node Iterable Base (Mixin)
 /* ****************************************************************************************************************** */
 
 type MapOrSet = Set<any> | Map<any, any>
@@ -98,7 +98,7 @@ abstract class NodeIterable<T extends Node> {
         // If key is a number, synthesize array-like access
         if (((typeof key === 'string') || (typeof key === 'number')) && !isNaN(+key)) return target.getValueByIndex(+key)
 
-        return target[key] || void 0;
+        return prop;
       }
     });
   }

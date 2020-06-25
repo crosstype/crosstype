@@ -64,7 +64,7 @@ export interface Node {
   /**
    * Iterate all children, providing parent property key in which the child was found
    */
-  forEachChild<T extends Node>(this: T, cb: <K extends keyof T>(child: Node, parentPropertyKey: K, nodeMapKey?: NodeMap.GetKeyType<T[K]>) => void): void
+  forEachChild<T extends Node>(this: T, cb: <K extends keyof T>(child: Node, parentPropertyKey: K) => void): void
 
   /**
    * Walks up the parent line and returns the first match
@@ -112,7 +112,7 @@ export interface Node {
    * @param reuseMemory - When specified, the same place in memory is used, causing any memory references to the node
    *                      to be retained. This should only be used with good reason.
    *                      You do not need to use this flag to retain ReferenceNodes. They will be updated automatically.
-   * @returns newNode (for chaining)
+   * @returns newNode (for chaining) (or if reuseMemory = true, returns the updated this)
    */
   replace<T extends Node>(newNode: T, brokenReferenceReplacer?: (node: Node) => Node, reuseMemory?: boolean): T
 
@@ -149,12 +149,7 @@ export interface NamedNode<T extends NodeIndex = NodeIndex> extends Node, Flags<
   name: T
 }
 
-export interface DeclarationBase<T extends NodeIndex = string> extends NamedNode<T> {
-  /**
-   * Get all ReferenceNodes in collection which refer to this node
-   */
-  getReferencesToThisNode(): ReadonlyNodeSet<ReferenceNode> | undefined
-}
+export interface DeclarationBase<T extends NodeIndex = string> extends NamedNode<T> { }
 
 // endregion
 
@@ -173,6 +168,11 @@ export interface DefinitionNode extends NamedNode<string>, Flags<NodeFlags, 'Def
   exported?: boolean
   typeArguments?: NodeMap<TypeArgumentNode>
   primary: boolean
+
+  /**
+   * Get all ReferenceNodes in collection which refer to this node
+   */
+  getReferencesToThisNode(): ReadonlyNodeSet<ReferenceNode> | undefined
 }
 
 // endregion
@@ -333,7 +333,6 @@ export interface StringLiteral extends Node, Flags<TypeFlags, 'Literal'> {
  */
 export interface TrueLiteral extends Node, Flags<TypeFlags, 'Literal'> {
   readonly kind: NodeKind.TrueLiteral
-  value: true
 }
 
 /**
@@ -341,7 +340,6 @@ export interface TrueLiteral extends Node, Flags<TypeFlags, 'Literal'> {
  */
 export interface FalseLiteral extends Node, Flags<TypeFlags, 'Literal'> {
   readonly kind: NodeKind.FalseLiteral
-  value: false
 }
 
 /**
@@ -622,7 +620,7 @@ export interface InterfaceDeclaration extends ClassLikeNodeBase, DeclarationBase
 export type ObjectLikeMember = PropertyDeclaration | MethodDeclaration
 
 export interface ObjectMemberBase extends DeclarationBase<ObjectNodeKey> {
-  optional: boolean
+  optional?: boolean
 }
 
 /**

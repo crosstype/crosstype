@@ -1,8 +1,8 @@
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, BottomNode, ByteNode, CharacterNode,
   ClassDeclaration, ClassLikeNode, ComplexNumberNode, DateLikeNode, DateNode, DateTimeLiteral, DateTimeNode,
-  DecimalLiteral, DecimalNode, DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral,
-  FunctionDeclaration, FunctionNode, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
+  DecimalLiteral, DecimalNode, Definition, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration,
+  FunctionNode, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
   InterfaceDeclaration, IntersectionNode, IterableNode, LinkedListNode, ListNode, MapNode, MethodDeclaration,
   ModuleNode, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
   ObjectLikeMember, ObjectLikeNode, ObjectNode, ParameterNode, PropertyDeclaration, RealNumberLiteral, RealNumberNode,
@@ -23,7 +23,7 @@ export const isNode = (v: any): v is Node => v instanceof NodeObject;
 export const isNamedNode = (n: Node): n is NamedNode => !!(n.flags & NodeFlags.Named);
 export const isDeclaration = (n: Node): n is Declaration => !!(n.flags & NodeFlags.Declaration);
 
-export const isDefinitionNode = (n: Node): n is DefinitionNode => !!(n.flags & NodeFlags.Definition);
+export const isDefinition = (n: Node): n is Definition => !!(n.flags & NodeFlags.Definition);
 
 export const isModuleNode = (n: Node): n is ModuleNode => !!(n.typeFlags & TypeFlags.Module);
 export const isNamespaceNode = (n: Node): n is NamespaceNode => (n.kind === NodeKind.Namespace);

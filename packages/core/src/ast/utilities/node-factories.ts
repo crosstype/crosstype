@@ -1,13 +1,13 @@
 import { DefinitionFlags, NodeFlags, NodeKind, OrderKind, TypeFlags } from '#ast/enums';
 import {
   AnonymousClass, AnonymousFunctionNode, AnythingNode, ArrayNode, BooleanNode, ByteNode, CharacterNode,
-  ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNode,
-  DefinitionNode, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable,
-  ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode,
-  LinkedListNode, ListNode, MapNode, MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode,
-  NullNode, ObjectNode, ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode,
-  SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
-  TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
+  ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNode, Definition,
+  EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable, ImaginaryNumberLiteral,
+  InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode, LinkedListNode, ListNode, MapNode,
+  MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, ObjectNode,
+  ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode,
+  SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode,
+  TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 import { omit } from '@crosstype/system';
 import { NodeForKind } from '#ast/node-lookups';
@@ -126,10 +126,10 @@ export function createNode(
 // region: Definition Nodes
 /* ****************************************************************************************************************** */
 
-export function createDefinitionNode(properties: NodeProperties<DefinitionNode, 'definitionFlags'>): DefinitionNode {
+export function createDefinition(properties: NodeProperties<Definition, 'definitionFlags'>): Definition {
   const desc: PropertyDescriptorMap = {
     definitionFlags: {
-      get(this: DefinitionNode): DefinitionFlags {
+      get(this: Definition): DefinitionFlags {
         let res = DefinitionFlags.None |
           (+(this.declarations.size > 1) && DefinitionFlags.HasMultipleDeclarations) |
           (+(!!this.typeArguments && this.typeArguments.size > 0) && DefinitionFlags.Parameterized);

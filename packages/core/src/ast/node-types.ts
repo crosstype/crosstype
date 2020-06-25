@@ -79,9 +79,9 @@ export interface Node {
   getNamedParent(name?: string | RegExp): Node | undefined
 
   /**
-   * Get parent DefinitionNode
+   * Get parent Definition
    */
-  getDefinition(): DefinitionNode | undefined
+  getDefinition(): Definition | undefined
 
   /**
    * Get parent SourceFileNode (only exists during compilation, as definitions can have multiple output files)
@@ -123,6 +123,10 @@ export interface Node {
    */
   compile<T extends Language.Names>(language: T, options?: Language.GetLanguage<T>['optionsTypes']['CompileOptions']): string
 
+  /**
+   * Get all ReferenceNodes in collection which refer to this node
+   */
+  getReferencesToThisNode(): ReadonlyNodeSet<ReferenceNode> | undefined
 
   /* ********************************************************* *
    * Undocumented
@@ -155,10 +159,10 @@ export interface DeclarationBase<T extends NodeIndex = string> extends NamedNode
 
 
 /* ****************************************************************************************************************** */
-// region: Definition Node
+// region: Definition
 /* ****************************************************************************************************************** */
 
-export interface DefinitionNode extends NamedNode<string>, Flags<NodeFlags, 'Definition'> {
+export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definition'> {
   readonly kind: NodeKind.Definition
   readonly definitionFlags: DefinitionFlags     // getter, then remove this note
   readonly collection?: DefinitionCollection
@@ -168,11 +172,6 @@ export interface DefinitionNode extends NamedNode<string>, Flags<NodeFlags, 'Def
   exported?: boolean
   typeArguments?: NodeMap<TypeArgumentNode>
   primary: boolean
-
-  /**
-   * Get all ReferenceNodes in collection which refer to this node
-   */
-  getReferencesToThisNode(): ReadonlyNodeSet<ReferenceNode> | undefined
 }
 
 // endregion
@@ -187,7 +186,7 @@ export type ModuleNode = NamespaceNode | SourceFileNode
 interface ModuleBase extends Node {
   name: string
   exported?: boolean
-  definitions?: NodeMap<DefinitionNode>
+  definitions?: NodeMap<Definition>
   namespaces?: NodeMap<NamespaceNode>
 }
 
@@ -579,7 +578,7 @@ export interface ClassDeclaration extends ClassLikeNodeBase, DeclarationBase,
   Flags<NodeFlags, 'Declaration'>,
   Flags<TypeFlags, 'Class' | 'Composite'>
 {
-  readonly parent: DefinitionNode
+  readonly parent: Definition
   readonly kind: NodeKind.ClassDeclaration
   name: string
 }
@@ -589,7 +588,7 @@ export interface ClassDeclaration extends ClassLikeNodeBase, DeclarationBase,
  * @see https://en.wikipedia.org/wiki/Class_(computer_programming)
  */
 export interface AnonymousClass extends ClassLikeNodeBase, Flags<TypeFlags, 'Class' | 'Composite'> {
-  readonly parent: DefinitionNode
+  readonly parent: Definition
   readonly kind: NodeKind.AnonymousClass
   name?: string
 }
@@ -604,7 +603,7 @@ export interface InterfaceDeclaration extends ClassLikeNodeBase, DeclarationBase
   Flags<NodeFlags, 'Declaration'>,
   Flags<TypeFlags, 'Interface' | 'Composite'>
 {
-  readonly parent: DefinitionNode
+  readonly parent: Definition
   readonly kind: NodeKind.InterfaceDeclaration
   callSignatures?: NodeSet<SignatureNode>
   name: string
@@ -872,7 +871,7 @@ export interface ReferenceNode extends Node, Flags<TypeFlags, 'Reference'> {
    * @internal
    * @notChild
    */
-  targetBase: DefinitionNode | TypeArgumentNode
+  targetBase: Definition | TypeArgumentNode
   /**
    * Chain of property keys
    * @internal

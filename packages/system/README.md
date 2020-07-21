@@ -1,7 +1,9 @@
-@crosstype/core
-===
+# @crosstype/system
 
-Internal system library for the CrossType suite
+This library includes universal utility types, functions, and components.
+
+It is intended to remain light-weight and only house things which can be useful in a broad context. As a result, it is
+versioned independently and use within external libraries is encouraged.
 
 ## Pre-release Disclaimer
 

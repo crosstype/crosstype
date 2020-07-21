@@ -3,6 +3,9 @@
  * General Helpers
  * ****************************************************************************************************************** */
 
+/**
+ * Deep Copy object using rfdc
+ */
 export { default as deepCopy } from 'rfdc';
 
 /**
@@ -88,7 +91,10 @@ export function uniqueArray<T, TBoolean extends boolean>(arr: T[], removeUndefin
   return [ ...arr ].filter((val, i) => (arr.indexOf(val) === i) && (!removeUndefined || val !== undefined)) as any;
 }
 
-export function removeUndefined<T>(arr: T[]): Exclude<T, undefined>[] {
+/**
+ * Remove undefined values from array
+ */
+export function removeUndefinedFromArray<T>(arr: T[]): Exclude<T, undefined>[] {
   return [ ...arr ].filter(val => val !== undefined) as any;
 }
 

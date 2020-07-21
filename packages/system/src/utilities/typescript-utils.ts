@@ -183,6 +183,24 @@ export function getImplementsTypes(type: InterfaceType): BaseType[] {
 }
 
 /**
+ * Walk up inheritance types and aggregate all
+ */
+export function getAllBaseTypes(type: InterfaceType): Type[] {
+  const { checker } = type;
+  let baseTypes = <Type[]>[];
+  (function addBaseTypes(type: InterfaceType) {
+    try {
+      checker.getBaseTypes(type)?.forEach(t => {
+        baseTypes.push(t);
+        addBaseTypes(<InterfaceType>t);
+      })
+    } catch {}
+  })(type);
+
+  return baseTypes;
+}
+
+/**
  * Get all heritage types (including implements)
  */
 export const getHeritageTypes = (type: InterfaceType): Type[] => {

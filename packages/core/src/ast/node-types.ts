@@ -50,6 +50,11 @@ export interface Node {
   readonly compileOptions?: CompileOptionsSet
 
   /**
+   * (Getter) String value for kind
+   */
+  readonly kindString: string
+
+  /**
    * @returns Array of parental lineage (ordered from immediate parent to highest)
    */
   getLineage(): undefined | Node[]
@@ -70,7 +75,8 @@ export interface Node {
    * Walks up the parent line and returns the first match
    * @param matcher
    */
-  findParent<T extends Node = Node>(matcher: (node: Node) => boolean): T | undefined
+  findParent<T>(matcher: (node: T) => node is T): T | undefined
+  findParent<T>(matcher: (node: T) => unknown): T | undefined
 
   /**
    * Find nearest named parent node
@@ -168,7 +174,7 @@ export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definit
   readonly collection?: DefinitionCollection
   outputs?: OutputFile[]
   name: string
-  declarations: NodeMap<RootDeclaration>
+  declarations: NodeSet<RootDeclaration>
   exported?: boolean
   typeArguments?: NodeMap<TypeArgumentNode>
   primary: boolean
@@ -183,7 +189,7 @@ export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definit
 
 export type ModuleNode = NamespaceNode | SourceFileNode
 
-interface ModuleBase extends Node {
+interface ModuleBase extends NamedNode<string> {
   name: string
   exported?: boolean
   definitions?: NodeMap<Definition>
@@ -871,7 +877,7 @@ export interface ReferenceNode extends Node, Flags<TypeFlags, 'Reference'> {
    * @internal
    * @notChild
    */
-  targetBase: Definition | TypeArgumentNode
+  targetBase: Definition | TypeParameterDeclaration
   /**
    * Chain of property keys
    * @internal

@@ -4,7 +4,7 @@ import {
   ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNode, Definition,
   EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable, ImaginaryNumberLiteral,
   InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode, LinkedListNode, ListNode, MapNode,
-  MethodDeclaration, MultiSetNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, ObjectNode,
+  MethodDeclaration, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, ObjectNode,
   ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode,
   SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode,
   TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
@@ -13,13 +13,16 @@ import { omit } from '@crosstype/system';
 import { NodeForKind } from '#ast/node-lookups';
 import { NodeObject } from '#ast/node-object';
 import {
-  isClassDeclaration, isDeclaration, isEnumDeclaration, isFunctionDeclaration, isInterfaceDeclaration,
-  isMethodDeclaration, isNamedNode, isNode, isPropertyDeclaration, isTypeDeclaration, isVariableDeclaration
+  isClassDeclaration, isDefinition, isEnumDeclaration, isFunctionDeclaration, isInterfaceDeclaration,
+  isMethodDeclaration, isNamedNode, isNode, isPropertyDeclaration, isSourceFileNode, isTypeDeclaration,
+  isVariableDeclaration
 } from '#ast/utilities/node-typeguards';
 import { NodeMap, NodeSet } from '#ast/components';
 import { cloneNode } from '#ast/utilities/clone-node';
 import { nodeMetadata } from '#ast/node-metadata';
 import { Declaration } from '#ast/node-aliases';
+import { findTargetDeclarationsByPath } from '#ast/utilities/find-target-declarations-by-path';
+import { NodeIndex } from '#ast';
 
 
 /* ****************************************************************************************************************** */
@@ -38,6 +41,20 @@ const getObjectLikeNodeDescriptors = (): PropertyDescriptorMap => ({
     }
   }
 });
+
+const getNamedNodeDescriptors = (): PropertyDescriptorMap => {
+  let name: NodeIndex;
+  return ({
+    name: {
+      get(this: NamedNode) { return name },
+      set(this: NodeObject, newName: NodeIndex) {
+        name = newName;
+        this.updateNameOnParentContainer();
+      },
+      enumerable: true
+    }
+  });
+}
 
 // endregion
 
@@ -85,13 +102,14 @@ export function createNode(
 ): Node {
   properties = Object.assign({}, properties);
   const node = new NodeObject(kind, properties.origin, properties.compileOptions);
-  const { baseTypeFlags, baseFlags, childContainerProperties } = nodeMetadata[kind];
+  const { baseTypeFlags, baseFlags, childContainerProperties, isNamedNode } = nodeMetadata[kind];
 
   /* Determine base flags */
   const flags = (properties.flags || NodeFlags.None) | (baseFlags?.reduce((p, c) => p + c) || 0)
   const typeFlags = (properties.typeFlags || TypeFlags.None) | (baseTypeFlags?.reduce((p, c) => p + c) || 0)
 
-  // Assign property descriptors
+  /* Assign property descriptors */
+  if (isNamedNode) additionalDescriptors = Object.assign({}, getNamedNodeDescriptors(), additionalDescriptors);
   if (additionalDescriptors) Object.defineProperties(node, additionalDescriptors);
 
   /* If child container properties have nodes which already have assigned parents, substitute for clones */
@@ -528,13 +546,9 @@ export function createReferenceNode(properties: Partial<NodeProperties<Reference
         if (target) return target;
 
         /* Resolve target from base & path */
-        let node: Node | undefined = this.targetBase;
-        for (let i = 0; node && (i < this.path.length); i++) {
-          const key = this.path[i];
-          node = node.getChildren(/* deep */ false, n => isDeclaration(n) && (n.name === key))?.toArray()?.[0];
-        }
+        const foundTarget = findTargetDeclarationsByPath(this.targetBase, this.path)?.[0];
+        if (foundTarget) this.target = foundTarget;
 
-        if (node) this.target = <Declaration>node;
         return target!;
       },
       set(this: ReferenceNode, newTarget: Declaration) {
@@ -545,8 +559,8 @@ export function createReferenceNode(properties: Partial<NodeProperties<Reference
 
         /* Update target references sets */
         if (oldTarget !== target) {
-          (oldTarget?.getReferencesToThisNode() as NodeSet<ReferenceNode>).delete(this);
-          (target.getReferencesToThisNode() as NodeSet<ReferenceNode>).add(this);
+          (oldTarget?.getReferencesToThisNode() as NodeSet<ReferenceNode> | undefined)?.delete(this);
+          (target.getReferencesToThisNode() as NodeSet<ReferenceNode> | undefined)?.add(this);
         }
       },
     },
@@ -558,8 +572,12 @@ export function createReferenceNode(properties: Partial<NodeProperties<Reference
     if (!target || !target.parent) return;
 
     ref.targetBase = target.getDefinition()!;
-    ref.path = [ target.name ];
-    target.getLineage()?.forEach(parent => isNamedNode(parent) && ref.path.unshift(parent.name));
+    const refPath = [];
+
+    for (let node: Node = target; node && !isDefinition(node) && !isSourceFileNode(node); node = node.parent)
+      if (isNamedNode(node)) refPath.unshift(node.name);
+
+    ref.path = refPath;
   }
 }
 

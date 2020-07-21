@@ -12,7 +12,7 @@ import {
 } from '#ast/node-types';
 import { NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { NodeObject } from '#ast/node-object';
-import { Declaration } from '#ast/node-aliases';
+import { Declaration, RootDeclaration } from '#ast/node-aliases';
 
 
 /* ****************************************************************************************************************** */
@@ -22,6 +22,7 @@ import { Declaration } from '#ast/node-aliases';
 export const isNode = (v: any): v is Node => v instanceof NodeObject;
 export const isNamedNode = (n: Node): n is NamedNode => !!(n.flags & NodeFlags.Named);
 export const isDeclaration = (n: Node): n is Declaration => !!(n.flags & NodeFlags.Declaration);
+export const isRootDeclaration = (n: Node): n is RootDeclaration => isDeclaration(n) && !(n.flags & NodeFlags.Nested);
 
 export const isDefinition = (n: Node): n is Definition => !!(n.flags & NodeFlags.Definition);
 

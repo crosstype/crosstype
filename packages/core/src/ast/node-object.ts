@@ -2,7 +2,7 @@ import { Definition, NamedNode, Node, ReferenceNode, SourceFileNode } from '#ast
 import { ModifierFlags, NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { CompileOptionsSet } from '#options/types';
 import { Language } from '#language/language';
-import { accForEach } from '@crosstype/system';
+import { accForEach, reverseMap } from '@crosstype/system';
 import { NodeMap, NodeSet, ReadonlyNodeSet } from '#ast/components';
 import { isDefinition, isNamedNode, isNode, isSourceFileNode } from '#ast/utilities/node-typeguards';
 import { cloneNode } from '#ast/utilities/clone-node';
@@ -38,6 +38,10 @@ export class NodeObject implements Node {
 
     this._referencesToThis = new NodeSet();
     this._metadata = nodeMetadata[kind];
+  }
+
+  get kindString(): string {
+    return NodeKind[this.kind];
   }
 
   /* ********************************************************* *
@@ -76,18 +80,21 @@ export class NodeObject implements Node {
 
     for (const propKey of childContainerKeys) {
       const prop = this[propKey] as any as Node | NodeMap<NamedNode> | NodeSet<Node>;
-      if (!prop) return;
-      else if (isNode(prop)) cb(prop, propKey);
+      if (!prop) continue;
+
+      if (isNode(prop)) cb(prop, propKey);
       else prop.forEach((n: Node) => cb(n, propKey));
     }
   }
 
-  findParent<T extends Node = Node>(matcher: (node: Node) => boolean): T | undefined {
+  findParent<T>(matcher: (node: T) => node is T): T | undefined
+  findParent<T>(matcher: (node: T) => unknown): T | undefined
+  findParent(matcher: (node: unknown) => boolean): unknown | undefined {
     const seenParents = new NodeSet();
     for (let node = this.parent; node; node = node.parent) {
       if (seenParents.has(node)) throw new Error(`Error, parent chain is broken. Circular reference.`);
       seenParents.add(node);
-      if (matcher(node)) return node as T;
+      if (matcher(node)) return node;
     }
   }
 
@@ -209,7 +216,7 @@ export class NodeObject implements Node {
         const container = this.parent[parentKey] as any;
 
         if (container instanceof NodeMap) {
-          const key = (<NamedNode<any>>child).name;
+          const key = (<NamedNode>child).name;
           if (!replacementNode) container.delete(key);
           else container.set(key!, <NamedNode>replacementNode);
         } else if (container instanceof NodeSet) {
@@ -218,5 +225,40 @@ export class NodeObject implements Node {
         }
       }
     })
+  }
+
+  /**
+   * Update name on parent containers (called after updating NamedNode's name in order to update the key in NodeMap)
+   * @internal
+   */
+  updateNameOnParentContainer(this: NamedNode & NodeObject): void {
+    const newKey = this.name;
+
+    this.parent?.forEachChild((child, parentKey) => {
+      if (child === this) {
+        const prop = this.parent[parentKey];
+        if (prop instanceof NodeMap) {
+          const oldKey = reverseMap(prop).get(this);
+          if (oldKey !== newKey) {
+            prop.delete(oldKey);
+            prop.set(newKey, this);
+          }
+        }
+      }
+    });
+
+    /* TypeArguments may be associated in the definition. In that case, we update those maps as well */
+    if (this.kind === NodeKind.TypeParameterDeclaration) {
+      const typeArguments = this.getDefinition()?.typeArguments;
+      if (!typeArguments) return;
+
+      [ ...typeArguments.entries() ].forEach(([ key, node ]) => {
+        const { association } = node;
+        if ((association === this) && (key !== newKey)) {
+          typeArguments.delete(key);
+          typeArguments.set(<string>newKey, node);
+        }
+      })
+    }
   }
 }

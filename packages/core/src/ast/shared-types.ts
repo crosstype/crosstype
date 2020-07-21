@@ -37,6 +37,7 @@ export interface NodeMetadata {
   childContainerProperties?: Map</* key */ string, { key: string, optional: boolean }>
   baseFlags?: NodeFlags[]
   baseTypeFlags?: TypeFlags[]
+  isNamedNode?: boolean
 }
 
 // endregion

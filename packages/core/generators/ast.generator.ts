@@ -2,11 +2,11 @@ import { createGenerator, GeneratorContext } from '@crosstype/build-tools';
 import path from 'path';
 import ts, {
   CompilerHost, InterfaceDeclaration, Program, PropertyAssignment, QualifiedName, ScriptTarget, SourceFile, SyntaxKind,
-  Type, TypeNode, TypeFlags, UnionType
+  Type, TypeNode, TypeFlags, UnionType, InterfaceType
 } from '@crosstype/system/typescript';
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
 import { tsquery } from '@phenomnomnominal/tsquery';
-import { getPrimaryDeclaration } from '@crosstype/system';
+import { getPrimaryDeclaration, getAllBaseTypes } from '@crosstype/system';
 
 
 /* ****************************************************************************************************************** */
@@ -15,6 +15,7 @@ import { getPrimaryDeclaration } from '@crosstype/system';
 
 const targetFile = path.resolve(__dirname, '../src/ast/node-types.ts');
 const baseNodeInterfaceName = 'Node';
+const namedNodeInterfaceName = 'NamedNode';
 const flagsHelperName = 'Flags';
 const lookupHelperName = 'NodeForKind';
 
@@ -36,8 +37,9 @@ const selectors = {
 /* ****************************************************************************************************************** */
 
 interface ASTDetail {
+  baseNodeInterface: InterfaceDeclaration
   baseNodeInterfaceType: Type
-  baseNodeInterface: InterfaceDeclaration | undefined
+  namedNodeInterfaceType: Type
   astFile: SourceFile
   nodeInterfaces: Map<InterfaceDeclaration, { typeFlags: string[], flags: string[] }>
   interfaceDeclarations: InterfaceDeclaration[]
@@ -59,6 +61,8 @@ function getASTDetail(program: Program): ASTDetail {
   const interfaceDeclarations = tsquery.query(astFile, selectors.interfaces) as InterfaceDeclaration[];
   const baseNodeInterface = interfaceDeclarations.find(node => node.name.text === baseNodeInterfaceName)!;
   const baseNodeInterfaceType = checker.getTypeAtLocation(baseNodeInterface)!;
+  const namedNodeInterface = interfaceDeclarations.find(node => node.name.text === namedNodeInterfaceName)!;
+  const namedNodeInterfaceType = checker.getTypeAtLocation(namedNodeInterface)!;
 
   /* Get node interfaces & corresponding flags */
   const nodeInterfaces = new Map<InterfaceDeclaration, { typeFlags: string[], flags: string[] }>();
@@ -73,6 +77,7 @@ function getASTDetail(program: Program): ASTDetail {
     interfaceDeclarations,
     baseNodeInterface,
     baseNodeInterfaceType,
+    namedNodeInterfaceType,
     nodeInterfaces,
     astFile
   });
@@ -345,11 +350,19 @@ function entry(
           ts.createIdentifier('baseTypeFlags'),
           ts.createArrayLiteral(typeFlags.map(f => ts.createIdentifier(f)))
         ));
+
         /* Add baseFlags field */
         if (flags.length) objectPropertes.push(ts.createPropertyAssignment(
           ts.createIdentifier('baseFlags'),
           ts.createArrayLiteral(flags.map(f => ts.createIdentifier(f)))
         ));
+
+        /* Add isNamedNode field */
+        if (getAllBaseTypes(<InterfaceType>nodeType).find(t => (<any>t).target === detail.namedNodeInterfaceType))
+          objectPropertes.push(ts.createPropertyAssignment(
+            ts.createIdentifier('isNamedNode'),
+            ts.createTrue()
+          ));
 
         /* Create main Property PropertyAssignment */
         return ts.createPropertyAssignment(

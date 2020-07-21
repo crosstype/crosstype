@@ -78,31 +78,6 @@ type MapOrSet = Set<any> | Map<any, any>
  * Mixin for node iterables
  */
 abstract class NodeIterable<T extends Node> {
-  private thisProxy!: this;
-
-  /**
-   * Creates a proxy for Set/Map which ensures prototype functions are always bound + allows synthetic array-like access
-   * for elements
-   */
-  static createIterableProxy(iterable: MapOrSet) {
-    return new Proxy(iterable, {
-      get(target: any, key: any) {
-        let prop = target[key];
-
-        /* If prop is function from the prototype-chain, bind it */
-        if ((typeof prop === 'function') && !target.hasOwnProperty(prop))
-          for (let proto = Object.getPrototypeOf(iterable); proto; proto = Object.getPrototypeOf(proto))
-            if (proto.hasOwnProperty(key) && (typeof proto[key] === 'function'))
-              return proto[key].bind(target);
-
-        // If key is a number, synthesize array-like access
-        if (((typeof key === 'string') || (typeof key === 'number')) && !isNaN(+key)) return target.getValueByIndex(+key)
-
-        return prop;
-      }
-    });
-  }
-
   getValueByIndex(this: MapOrSet, index: number) {
     // noinspection SuspiciousTypeOfGuard
     if (typeof index !== 'number') throw new TypeError(`Index must be a number!`);
@@ -126,7 +101,7 @@ abstract class NodeIterable<T extends Node> {
   /**
    * @returns this or undefined if no members
    */
-  orUndefinedIfEmpty(): this | undefined { return !this.isEmpty ? this.thisProxy : void 0 }
+  orUndefinedIfEmpty(): this | undefined { return !this.isEmpty ? this : void 0 }
 
   /**
    * Remove invalid (non-node) members
@@ -153,7 +128,7 @@ abstract class NodeIterable<T extends Node> {
     if (this instanceof Set) Set.prototype.add.call(this, node);
     else this.set((<NamedNode<any>>node).name, node);
 
-    return this.thisProxy;
+    return this;
   }
 }
 
@@ -166,12 +141,8 @@ abstract class NodeIterable<T extends Node> {
 
 @mixin(NodeIterable)
 export class NodeSet<T extends Node> extends Set<T> {
-  [idx:number]: any
-
   constructor(nodes?: T[]) {
     super(getIterableCreateParam(NodeSet, nodes));
-    (<any>this).thisProxy = NodeIterable.createIterableProxy(this);
-    return (<any>this).thisProxy;
   }
 
   /**
@@ -211,8 +182,6 @@ export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
 
   constructor(nodes?: T[]) {
     super(getIterableCreateParam(NodeMap, nodes));
-    (<any>this).thisProxy = NodeIterable.createIterableProxy(this);
-    return (<any>this).thisProxy;
   }
 
   /**

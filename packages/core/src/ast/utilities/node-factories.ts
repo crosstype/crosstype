@@ -47,7 +47,7 @@ const getNamedNodeDescriptors = (): PropertyDescriptorMap => {
   return ({
     name: {
       get(this: NamedNode) { return name },
-      set(this: NodeObject, newName: NodeIndex) {
+      set(this: NamedNode & NodeObject, newName: NodeIndex) {
         name = newName;
         this.updateNameOnParentContainer();
       },

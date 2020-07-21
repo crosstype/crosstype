@@ -10,7 +10,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf coverage dist *.tsbuildinfo",
     "-------------  ": "-------------",
-    "generate-files": "node bin/generate.js --force --logLevel debug core",
+    "generate-files": "node bin/generate.js --force --logLevel debug packages/core",
     "-------------   ": "-------------",
     "test": "echo not yet implemented",
     "test:coverage": "jest --collect-coverage"

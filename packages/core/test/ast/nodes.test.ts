@@ -1,8 +1,10 @@
 /**
  * The following are tests for node factories, TypeGuards, and general Node property descriptor behaviour
  */
-import { Definition, Node, ObjectLikeNode } from '#ast/node-types';
-import { DefinitionFlags, NodeKind, NodeObject, OrderKind } from '#ast';
+import {
+  Definition, NamedNode, Node, ObjectLikeNode, PropertyDeclaration, TypeParameterDeclaration
+} from '#ast/node-types';
+import { DefinitionFlags, NodeFlags, NodeKind, NodeMetadata, NodeObject, OrderKind } from '#ast';
 import {
   createAnonymousClass, createAnonymousFunctionNode, createAnythingNode, createArrayNode, createBooleanNode,
   createBottomNode, createByteNode, createCharacterNode, createClassDeclaration, createComplexNumberNode,
@@ -30,8 +32,10 @@ import {
 import { NodeForKind } from '#ast/node-lookups';
 import { nodeMetadata } from '#ast/node-metadata';
 import { RootDeclaration } from '#ast/node-aliases';
-import { NodeMap } from '#ast/components';
+import { NodeMap, NodeSet } from '#ast/components';
 import { OneOrMore } from '@crosstype/system';
+import { createFakeNode } from '../helpers';
+import * as nodeHelpersModule from '#ast/utilities/find-target-declarations-by-path';
 
 
 /* ****************************************************************************************************************** *
@@ -110,6 +114,7 @@ const objectFactories: Array<[ string, (properties?: any) => Node ]> = [
   [ 'InterfaceDeclaration', createInterfaceDeclaration ]
 ];
 
+
 /* ****************************************************************************************************************** *
  * Test
  * ****************************************************************************************************************** */
@@ -150,7 +155,7 @@ describe(`Node Tests`, () => {
     test(`Definition -> definitionFlags`, () => {
       let node: Definition = createDefinition({
         name: 'd',
-        declarations: new NodeMap<RootDeclaration>(),
+        declarations: new NodeSet<RootDeclaration>(),
         primary: false
       });
 
@@ -251,6 +256,35 @@ describe(`Node Tests`, () => {
       expect(node.name).toBe(node.association.name);
     });
 
+    describe(`NamedNode -> name change updates parent NodeMap key`, () => {
+      const namedNodes = factories.filter(({ 2: kind }) => nodeMetadata[kind].isNamedNode && (kind !== NodeKind.TypeArgument));
+
+      test.each(namedNodes)(`%s`, (label, factory) => {
+        const node = factory(<any>{ name: 'nodeName' }) as NamedNode;
+        const parent = Object.assign(createFakeNode(void 0, void 0, NodeKind.Definition), {
+          flags: NodeFlags.Definition,
+          _metadata: <NodeMetadata>{
+            childContainerProperties: new Map([[ 'members', { key: 'members', optional: false } ]])
+          },
+          members: new NodeMap([ node ]),
+          typeArguments: new NodeMap([ createTypeArgumentNode(<any>{ association: node as TypeParameterDeclaration }) ])
+        });
+        node.updateProperties({ parent });
+
+        expect(parent.members.get('nodeName')).toBe(node);
+        expect(parent.typeArguments.get('nodeName')?.association).toBe(node);
+
+        // Change name
+        node.name = 'newName';
+        expect([ ...parent.members.keys() ]).toEqual([ 'newName' ]);
+        expect(parent.members.get('newName')).toBe(node);
+        if (isTypeParameterDeclaration(node)) {
+          expect([ ...parent.typeArguments.keys() ]).toEqual([ 'newName' ]);
+          expect(parent.typeArguments.get('newName')?.association).toBe(node);
+        }
+      });
+    });
+
     test.each(objectFactories)(`%s -> methods & properties`, (name, factoryFn) => {
       const prop = createPropertyDeclaration(<any>{ name: 'prop' });
       const method = createMethodDeclaration(<any>{ name: 'method' });
@@ -261,26 +295,59 @@ describe(`Node Tests`, () => {
       expect(node.methods!.toArray()).toEqual([ method ]);
     });
 
-    // TODO - After Revising Target logic
     describe(`ReferenceNode -> target`, () => {
-      // const rootNode = createSourceFileNode({
-      //   name: 'File',
-      //   language: 'typescript',
-      //   fileName: 'a.ts',
-      //   definitions: new NodeMap([
-      //     createDefinition({
-      //       name: 'Type1',
-      //       primary: true,
-      //       declarations: new NodeMap([
-      //         createTypeDeclaration({ name: 'Type1', value: createTrueLiteral() })
-      //       ])
-      //     })
-      //   ])
-      // });
-      // const targetType = rootNode.definitions![0].declarations[0];
-      // const refNode = createReferenceNode({ target: targetType });
+      const rootNode = createDefinition({
+        name: 'Type1',
+        primary: true,
+        declarations: new NodeSet([
+          createTypeDeclaration({
+            name: 'Type1',
+            value: createObjectNode({
+              members: NodeMap.from([
+                createPropertyDeclaration({
+                  name: 'Prop2',
+                  value: createTrueLiteral(),
+                  optional: false
+                })
+              ])
+            })
+          }),
+          createTypeDeclaration({
+            name: 'Type1',
+            value: createObjectNode({
+              members: NodeMap.from([
+                createPropertyDeclaration({
+                  name: 'Prop1',
+                  value: createTrueLiteral(),
+                  optional: false
+                })
+              ])
+            })
+          })
+        ])
+      });
 
-      test.todo(`Path and targetBase get set`);
+      const targetBase = rootNode;
+      const targetType = rootNode.declarations.getValueByIndex(1).value.members.getValueByIndex(0);
+
+      test(`Path and targetBase get set`, () => {
+        const refNode = createReferenceNode({ target: targetType });
+
+        expect(refNode.targetBase).toBe(targetBase);
+        expect(refNode.path).toEqual([ 'Type1', 'Prop1' ]);
+      });
+
+      test(`Resolves target if broken`, () => {
+        const newTarget = createFakeNode();
+        const findReferencePathSpy = jest.spyOn(nodeHelpersModule, 'findTargetDeclarationsByPath').mockReturnValue([ <any>newTarget ]);
+        const refNode = createReferenceNode({ path: [ 'Type1', 'Prop1' ], targetBase });
+
+        expect(refNode.targetBase).toBe(rootNode);
+        expect(refNode.path).toEqual([ 'Type1', 'Prop1' ]);
+        expect(refNode.target).toBe(newTarget);
+
+        findReferencePathSpy.mockRestore();
+      });
     });
   });
 });

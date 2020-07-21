@@ -52,7 +52,7 @@ const level2_typeDeclaration = createTypeDeclaration({
 const level1_definition = createDefinition({
   name: 'definition',
   primary: true,
-  declarations: NodeMap.from([ level2_typeDeclaration ])
+  declarations: NodeSet.from([ level2_typeDeclaration ])
 });
 
 /* Level 0 - SourceFile */

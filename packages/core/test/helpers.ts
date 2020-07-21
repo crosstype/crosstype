@@ -59,7 +59,6 @@ export function makeJestSafe<T>(v: T): T {
 // endregion
 
 
-
 /* ****************************************************************************************************************** */
 // region: Fake Factories
 /* ****************************************************************************************************************** */
@@ -80,6 +79,6 @@ export const createFakeNodes = (count: number, parent?: any, props?: any) => {
 }
 
 export const createNodeIterable = <T extends { new(...args: any[]): NodeSet<any> | NodeMap<any> }>(cls: T, nodes: NamedNode[]) =>
-  new cls(nodes)
+  new cls(nodes);
 
 // endregion

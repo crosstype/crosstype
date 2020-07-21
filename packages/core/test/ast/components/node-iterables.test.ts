@@ -26,8 +26,6 @@ describe(`Node Iterables`, () => {
       expect([ ...iterable.values() ]).toEqual(nodes)
     });
 
-    test(`Synthetic array-like access works`, () => expect(iterable[0]).toBe(nodes[0]));
-
     test(`Filters undefined during create`, () => {
       const iter = createNodeIterable(cls, <any>[ void 0, ...createFakeNodes(4), void 0, void 0 ]);
       expect(iter.size).toBe(4);

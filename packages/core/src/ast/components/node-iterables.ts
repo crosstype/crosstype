@@ -187,7 +187,7 @@ export class NodeMap<T extends NamedNode> extends Map<T['name'], T> {
   /**
    * Convert NodeMap to NodeSet
    */
-  toNodeSet(): NodeSet<NodeMap.GetNodeType<this>> { return new NodeSet(this.toArray()) as any }
+  toNodeSet(): NodeSet<T> { return new NodeSet(this.toArray()) as any }
 
   /* @formatter:off */
   /**

@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "rfdc": "^1.1.4",
-    "typescript": "~3.9.3"
+    "typescript": "~3.9.7"
   }
 }

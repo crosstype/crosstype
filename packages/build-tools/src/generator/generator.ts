@@ -1,5 +1,5 @@
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
-import { CompilerHost, normalizePath, Program } from '@crosstype/system/typescript';
+import { CompilerHost, normalizePath, Program } from 'typescript';
 import { createLogger, Logger } from './logger';
 import { GeneratorConfig } from './config';
 import { sys } from './sys';
@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import * as glob from 'glob';
 import { getWatchFileStats, WatchFilesStats } from './stats';
-import { hasProperties } from '@crosstype/system';
+import { hasProperties } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** */

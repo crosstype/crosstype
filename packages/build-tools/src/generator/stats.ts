@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { isJSONObjectString } from '@crosstype/system';
+import { isJSONObjectString } from '@crosstype/common';
 import { GeneratorConfig, GeneratorContext, sys } from './index'
 
 

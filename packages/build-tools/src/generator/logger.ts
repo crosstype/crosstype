@@ -1,5 +1,5 @@
 import { GeneratorConfig } from './config';
-import { truthyStr } from '@crosstype/system';
+import { truthyStr } from '@crosstype/common';
 import { GeneratorContext, isGenerator } from './generator';
 
 

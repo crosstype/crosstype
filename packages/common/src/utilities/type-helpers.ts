@@ -4,6 +4,16 @@
  * ****************************************************************************************************************** */
 
 /**
+ * If T is 'any', returns TrueType, otherwise returns FalseType
+ */
+export type IfAny<T, TrueType, FalseType> = 0 extends (1 & T) ? TrueType : FalseType
+
+/**
+ * Returns boolean of whether T is 'any'
+ */
+export type IsAny<T> = IfAny<T, true, false>
+
+/**
  * Get indices for array, excluding non-array properties
  */
 export type Indices<T> = Exclude<keyof T, keyof any[]>;

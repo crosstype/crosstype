@@ -1,6 +1,6 @@
-import { Compiler, LanguagePackage, Parser } from '#package';
-import { removeUndefined } from '@crosstype/system';
+import { removeUndefinedFromArray } from '@crosstype/common';
 import { JsonSchema, Python, TypeScript } from './imports';
+import { Compiler, LanguagePackage, Parser } from '#main';
 
 
 /* ****************************************************************************************************************** */
@@ -8,7 +8,7 @@ import { JsonSchema, Python, TypeScript } from './imports';
 /* ****************************************************************************************************************** */
 
 // Note: Keep all possible languages defined in this array
-const allLanguages = removeUndefined([ TypeScript, JsonSchema, Python ]);
+const allLanguages = removeUndefinedFromArray([ TypeScript, JsonSchema, Python ]);
 
 // endregion
 
@@ -68,23 +68,24 @@ export namespace Language {
     return getLanguage(name)?.compiler;
   }
 
-  export function getParsers(): readonly Parser[] {
-    const res: Compiler[] = [];
-    for (const language of getLanguages())
-      if (language.parser) res.push(language.parser);
-
-    return Object.freeze(res);
-  }
+  // export function getParsers(): readonly Parser[] {
+  //   const res: Compiler[] = [];
+  //   for (const language of getLanguages())
+  //     if (language.parser) res.push(language.parser);
+  //
+  //   return Object.freeze(res);
+  // }
 
   export function getParser(name: Language.Names): Parser | undefined {
     return getLanguage(name)?.parser;
   }
 
   export function getLanguage(name: Language.Names): LanguagePackage | undefined {
-    return getLanguages().find(l => (name === l.shortName) || (name === l.fullName));
+    return getLanguages().find(l => (name === l.shortName) || (name === l.name));
   }
 
-  export type GetLanguage<N extends Language.Names> = Extract<Languages, { fullName: N } | { shortName: N }>
+  export type GetLanguage<N extends Language.Names | Language.ShortNames> =
+    Extract<Languages, { fullName: N } | { shortName: N }>
 
   // endregion
 }

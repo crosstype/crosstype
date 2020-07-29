@@ -1,9 +1,9 @@
 import * as glob from 'glob';
 import * as path from 'path';
 import { LogLevel, sys } from './index';
-import { normalizePath, Program } from '@crosstype/system/typescript';
+import { normalizePath, Program } from 'typescript';
 import isGlob from 'is-glob';
-import { findLikelyTsConfigFile, pick } from '@crosstype/system';
+import { findLikelyTsConfigFile, pick } from '@crosstype/common';
 
 
 // const isGlob = require('is-glob'); // tsc can't find it if it's an import

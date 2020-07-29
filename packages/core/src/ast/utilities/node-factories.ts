@@ -6,15 +6,15 @@ import {
   InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode, LinkedListNode, ListNode, MapNode,
   MethodDeclaration, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, ObjectNode,
   ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode,
-  SourceFileNode, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode,
+  SourceFile, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode,
   TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
-import { omit } from '@crosstype/system';
+import { omit } from '@crosstype/common';
 import { NodeForKind } from '#ast/node-lookups';
 import { NodeObject } from '#ast/node-object';
 import {
   isClassDeclaration, isDefinition, isEnumDeclaration, isFunctionDeclaration, isInterfaceDeclaration,
-  isMethodDeclaration, isNamedNode, isNode, isPropertyDeclaration, isSourceFileNode, isTypeDeclaration,
+  isMethodDeclaration, isNamedNode, isNode, isPropertyDeclaration, isSourceFile, isTypeDeclaration,
   isVariableDeclaration
 } from '#ast/utilities/node-typeguards';
 import { NodeMap, NodeSet } from '#ast/components';
@@ -180,7 +180,7 @@ export function createNamespaceNode(properties: NodeProperties<NamespaceNode>): 
   return createNode(NodeKind.Namespace, properties);
 }
 
-export function createSourceFileNode(properties: NodeProperties<SourceFileNode>): SourceFileNode {
+export function createSourceFile(properties: NodeProperties<SourceFile>): SourceFile {
   return createNode(NodeKind.SourceFile, properties);
 }
 
@@ -574,7 +574,7 @@ export function createReferenceNode(properties: Partial<NodeProperties<Reference
     ref.targetBase = target.getDefinition()!;
     const refPath = [];
 
-    for (let node: Node = target; node && !isDefinition(node) && !isSourceFileNode(node); node = node.parent)
+    for (let node: Node = target; node && !isDefinition(node) && !isSourceFile(node); node = node.parent)
       if (isNamedNode(node)) refPath.unshift(node.name);
 
     ref.path = refPath;

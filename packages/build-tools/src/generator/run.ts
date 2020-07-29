@@ -1,8 +1,8 @@
 import { GeneratorContext } from './generator';
-import { ConvertibleSet, truthyStr } from '@crosstype/system';
+import { ConvertibleSet, truthyStr } from '@crosstype/common';
 import { sys } from './sys';
 import { createConfig, createLogger, GeneratorConfig } from '.';
-import { CompilerHost, Program } from '@crosstype/system/typescript';
+import { CompilerHost, Program } from 'typescript';
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
 import { getWatchFileStats, updateStatsFile } from './stats';
 

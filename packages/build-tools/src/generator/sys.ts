@@ -1,4 +1,4 @@
-import { normalizePath } from '@crosstype/system/typescript';
+import { normalizePath } from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
 import { GeneratorContext } from './generator';

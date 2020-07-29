@@ -4,6 +4,12 @@
  * ****************************************************************************************************************** */
 
 /**
+ * Cast a value to a type (bypasses similarity check)
+ * @param value - Pass value to cast or leave empty to create an empty type-only placeholder
+ */
+export const cast = <T>(value?: any): T => value;
+
+/**
  * Deep Copy object using rfdc
  */
 export { default as deepCopy } from 'rfdc';
@@ -11,12 +17,12 @@ export { default as deepCopy } from 'rfdc';
 /**
  * Convert array to single item if only one in the array
  */
-export const convertIfSingle = <T>(v: T): T extends ArrayLike<any> ? T[number] : T => Array.isArray(v) ? v[0] : v;
+export const convertSingleElementArray = <T>(v: T): T extends ArrayLike<any> ? T[number] : T => Array.isArray(v) ? v[0] : v;
 
 /**
  * @returns iterable or undefined if it is empty
  */
-export const undefinedIfEmpty = <T extends Iterable<any> | ArrayLike<any>>(arr: T | undefined) =>
+export const undefinedIfEmptyArray = <T extends Iterable<any> | ArrayLike<any>>(arr: T | undefined) =>
   arr && ((Array.isArray(arr) && arr.length) || Array.from(arr).length) ? arr : void 0;
 
 /**

@@ -10,14 +10,14 @@
     "clean:global": "yarn run clean && rimraf .yarn.lock .yarn-cache ./**/node_modules ./**/yarn.lock ./**/yarn-error.log ./**/generator.stats.json node_modules",
     "-------------": "-------------",
     "compile:core": "yarn workspace @crosstype/core compile",
-    "compile:system": "yarn workspace @crosstype/system compile",
+    "compile:system": "yarn workspace @crosstype/common compile",
     "compile:build-tools": "yarn workspace build-tools compile",
     "build:core": "yarn workspace @crosstype/core build",
-    "build:system": "yarn workspace @crosstype/system build",
+    "build:system": "yarn workspace @crosstype/common build",
     "build:build-tools": "yarn workspace build-tools build",
     "------------- ": "-------------",
     "test:core": "yarn workspace @crosstype/core test",
-    "test:system": "yarn workspace @crosstype/system test",
+    "test:system": "yarn workspace @crosstype/common test",
     "test:build-tools": "yarn workspace build-tools test",
     "-------------  ": "-------------",
     "prepare": "node scripts/setup.js"
@@ -28,10 +28,9 @@
   },
   "devDependencies": {
     "@crosstype/build-tools": "link:packages/build-tools",
+    "@crosstype/common": "link:packages/common",
     "@crosstype/ctl-json-schema": "link:language-packages/ctl-json-schema",
-    "@crosstype/ctl-python": "link:language-packages/ctl-python",
     "@crosstype/ctl-typescript": "link:language-packages/ctl-typescript",
-    "@crosstype/system": "link:packages/system",
     "@phenomnomnominal/tsquery": "^4.0.0",
     "@types/glob": "^7.1.1",
     "@types/is-glob": "^4.0.1",
@@ -45,9 +44,10 @@
     "rimraf": "^3.0.2",
     "shelljs": "^0.8.4",
     "shx": "^0.3.2",
+    "ts-expose-internals": "3.9.7-patch",
     "ts-jest": "^26.1.0",
     "ts-node": "^8.8.2",
-    "ts-patch": "^1.2.4",
+    "ts-patch": "^1.3.0",
     "typescript": "~3.9.7",
     "typescript-transform-paths": "^1.1.14"
   },
@@ -57,9 +57,10 @@
     "yarn": ">=0.27.5 || >=1.0.0-20170811"
   },
   "workspaces": [
-    "packages/system",
+    "packages/common",
     "packages/build-tools",
-    "packages/core"
+    "packages/core",
+    "language-packages/ctl-typescript/packages/*"
   ],
   "dependencies": {}
 }

@@ -6,7 +6,7 @@ import {
   InterfaceDeclaration, IntersectionNode, IterableNode, LinkedListNode, ListNode, MapNode, MethodDeclaration,
   ModuleNode, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
   ObjectLikeMember, ObjectLikeNode, ObjectNode, ParameterNode, PropertyDeclaration, RealNumberLiteral, RealNumberNode,
-  ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFileNode, StringLiteral, StringNode,
+  ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFile, StringLiteral, StringNode,
   SymbolLiteral, SymbolNode, TopNode, TrueLiteral, TupleNode, TypeArgumentNode, TypeDeclaration,
   TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
@@ -28,7 +28,7 @@ export const isDefinition = (n: Node): n is Definition => !!(n.flags & NodeFlags
 
 export const isModuleNode = (n: Node): n is ModuleNode => !!(n.typeFlags & TypeFlags.Module);
 export const isNamespaceNode = (n: Node): n is NamespaceNode => (n.kind === NodeKind.Namespace);
-export const isSourceFileNode = (n: Node): n is SourceFileNode => (n.kind === NodeKind.SourceFile);
+export const isSourceFile = (n: Node): n is SourceFile => (n.kind === NodeKind.SourceFile);
 
 export const isStringNode = (n: Node): n is StringNode => (n.kind === NodeKind.String);
 export const isCharacterNode = (n: Node): n is CharacterNode => (n.kind === NodeKind.Character);

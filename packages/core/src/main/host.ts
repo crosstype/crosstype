@@ -1,24 +1,27 @@
+import { SourceFile } from '#ast';
+import { cast } from '@crosstype/common';
+
+
 /* ****************************************************************************************************************** */
-// region: General
+// region: Types
 /* ****************************************************************************************************************** */
 
-export interface SourceFileInfo {
-  fileName: string,
-  packageName?: string,
-  packagePath?: string
+export interface CrossTypeHost {
+  readFile(fileName: string): string
+  writeFile(fileName: string): string
+  fileExists(fileName: string): string
+  emitFiles(files: SourceFile[]): void
 }
-
-export type NumberRange = { min: number, max?: number }
 
 // endregion
 
 
 /* ****************************************************************************************************************** */
-// region: Placeholder Types
+// region: Utilities
 /* ****************************************************************************************************************** */
-// Will be replaced
 
-export type DefinitionCollection = any
-export type OptionsConfig = any
+export function createCrossTypeHost(): CrossTypeHost {
+  return cast<CrossTypeHost>();
+}
 
 // endregion

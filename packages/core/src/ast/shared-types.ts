@@ -1,7 +1,8 @@
-import { CompileOptions, SourceFileInfo } from '../types';
+import { SourceFileInfo } from '../types';
 import { TagMap } from '#ast/components';
 import { SymbolLiteral } from '#ast/node-types';
 import { NodeFlags, TypeFlags } from '#ast/enums';
+import { Compiler } from '#main/compiler';
 
 
 /* ****************************************************************************************************************** */
@@ -20,17 +21,17 @@ export interface NodeOrigin {
    * Used by extensions to identify specific intrinsic types (ie. `undefined` and `null` in javascript would both
    * produce a NullNode. This property can be used to determine its origin kind)
    */
-  specificKind?: number
+  specialKind?: number
 
   [k: string]: any // Additional properties allowed
 }
 
 export type NodeIndex = string | number | SymbolLiteral
 
-export interface OutputFile {
+export interface OutputFile<TOptions extends Compiler.OptionsBase = Compiler.OptionsBase> {
   fileName: string,
   language: string,
-  compileOptions?: CompileOptions                 // Configure to override using Definition's compileOptions as a base
+  compileOptions?: TOptions
 }
 
 export interface NodeMetadata {

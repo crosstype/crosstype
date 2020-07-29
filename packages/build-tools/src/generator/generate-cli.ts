@@ -2,10 +2,10 @@ import minimist from 'minimist';
 import * as fs from 'fs';
 import { cliOptionKeys, repoBaseDir } from './config';
 import { sys } from './sys';
-import ts from '@crosstype/system/typescript';
+import ts from 'typescript';
 import runGenerators from './run';
 import path from 'path';
-import { pick } from '@crosstype/system';
+import { pick } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** *

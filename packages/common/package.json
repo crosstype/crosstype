@@ -1,6 +1,6 @@
 {
-  "name": "@crosstype/system",
-  "description": "Shared system library for the crosstype suite",
+  "name": "@crosstype/common",
+  "description": "Common helpers & types for TypeScript projects",
   "version": "0.0.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -11,7 +11,8 @@
     "clean": "rimraf coverage dist *.tsbuildinfo",
     "-------------": "-------------",
     "test": "echo not yet implemented",
-    "test:coverage": "jest --collect-coverage"
+    "test:coverage": "jest --collect-coverage",
+    "------------- ": "-------------"
   },
   "author": {
     "name": "Ron S.",
@@ -32,7 +33,6 @@
     "node": ">=11.6"
   },
   "dependencies": {
-    "rfdc": "^1.1.4",
-    "typescript": "~3.9.7"
+    "rfdc": "^1.1.4"
   }
 }

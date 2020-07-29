@@ -18,12 +18,6 @@ const packagesDir = path.resolve(rootDir, 'packages');
  * Tasks
  * ****************************************************************************************************************** */
 
-/* Ensure build-tools is built */
-if (!fs.existsSync(path.resolve(packagesDir, 'build-tools/index.js'))) {
-  shelljs.exec('yarn workspace @type-schema/build-tools build');
-}
-
-
 /* Ensure typescript is patched (to support transformers) */
 if (!fs.existsSync(path.resolve(rootDir, 'node_modules/typescript/lib-backup'))) {
   const baseDirs = new Set([

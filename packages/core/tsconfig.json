@@ -14,8 +14,8 @@
       "#language/*": [ "language/*" ],
       "#options": [ "options" ],
       "#options/*": [ "options/*" ],
-      "#package": [ "package" ],
-      "#package/*": [ "package/*" ]
+      "#main": [ "main" ],
+      "#main/*": [ "main/*" ]
     },
 
     "plugins": [
@@ -27,7 +27,8 @@
         "generators": [
           "generators/ast.generator.ts"
         ],
-        "logLevel": "info"
+        "logLevel": "info",
+        "tsConfig": "generators/tsconfig.json"
       }
     ]
   }

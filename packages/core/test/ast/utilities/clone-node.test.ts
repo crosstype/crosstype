@@ -2,7 +2,7 @@ import { Node, NodeObject } from '#ast';
 import { NodeMap, NodeSet } from '#ast/components';
 import { cloneNode } from '#ast/utilities/clone-node'
 import * as nm from '#ast/node-metadata';
-import { omit } from '@crosstype/system';
+import { omit } from '@crosstype/common';
 import {
   createFakeNode, createFakeNodes, createFakeReferenceNode, createNodeIterable, fakeNodeKind, getClassStringMap,
   makeJestSafe

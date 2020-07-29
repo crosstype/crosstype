@@ -5,7 +5,7 @@ import {
   isPropertyDeclaration, isTypeDeclaration, isTypeParameterDeclaration, isVariableDeclaration
 } from '#ast/utilities/node-typeguards';
 import { NodeMap } from '#ast/components';
-import { accForEach } from '@crosstype/system';
+import { accForEach } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** */

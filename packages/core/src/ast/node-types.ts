@@ -6,7 +6,7 @@
 import {
   DecimalKind, DefinitionFlags, LinkedListFlags, ModifierFlags, NodeFlags, NodeKind, OrderKind, SignatureKind, TypeFlags
 } from './enums';
-import { CompileOptions, DefinitionCollection, NumberRange } from '../types';
+import { DefinitionCollection, NumberRange } from '../types';
 import { NodeMap, NodeSet, ReadonlyNodeMap, ReadonlyNodeSet } from '#ast/components';
 import { Language } from '#language/language';
 import { CompileOptionsSet } from '#options/types';
@@ -90,9 +90,9 @@ export interface Node {
   getDefinition(): Definition | undefined
 
   /**
-   * Get parent SourceFileNode (only exists during compilation, as definitions can have multiple output files)
+   * Get parent SourceFile (only exists during compilation, as definitions can have multiple output files)
    */
-  getSourceFile(): SourceFileNode | undefined
+  getSourceFile(): SourceFile | undefined
 
   /**
    * @returns NodeSet of children
@@ -187,7 +187,7 @@ export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definit
 // region: Module Nodes
 /* ****************************************************************************************************************** */
 
-export type ModuleNode = NamespaceNode | SourceFileNode
+export type ModuleNode = NamespaceNode | SourceFile
 
 interface ModuleBase extends NamedNode<string> {
   name: string
@@ -201,7 +201,7 @@ export interface NamespaceNode extends ModuleBase, Flags<TypeFlags, 'Module'> {
   exported?: boolean
 }
 
-export interface SourceFileNode extends ModuleBase, Flags<TypeFlags, 'Module'> {
+export interface SourceFile extends ModuleBase, Flags<TypeFlags, 'Module'> {
   readonly kind: NodeKind.SourceFile
   readonly language: Language.FullNames
   fileName: string
@@ -848,7 +848,7 @@ export interface NothingNode extends Node {
 
 /**
  * @see https://en.wikipedia.org/wiki/Null_pointer
- * Specific type can be determined in specificKind (useful in cases like JS which has null and undefined)
+ * Specific type can be determined in specialKind (useful in cases like JS which has null and undefined)
  */
 export interface NullNode extends Node, Flags<TypeFlags, 'Unit'> {
   readonly kind: NodeKind.Null

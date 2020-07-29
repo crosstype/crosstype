@@ -1,10 +1,10 @@
-import { Definition, NamedNode, Node, ReferenceNode, SourceFileNode } from '#ast/node-types';
+import { Definition, NamedNode, Node, ReferenceNode, SourceFile } from '#ast/node-types';
 import { ModifierFlags, NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
 import { CompileOptionsSet } from '#options/types';
 import { Language } from '#language/language';
-import { accForEach, reverseMap } from '@crosstype/system';
+import { accForEach, reverseMap } from '@crosstype/common';
 import { NodeMap, NodeSet, ReadonlyNodeSet } from '#ast/components';
-import { isDefinition, isNamedNode, isNode, isSourceFileNode } from '#ast/utilities/node-typeguards';
+import { isDefinition, isNamedNode, isNode, isSourceFile } from '#ast/utilities/node-typeguards';
 import { cloneNode } from '#ast/utilities/clone-node';
 import { NodeMetadata, NodeOrigin } from '#ast/shared-types';
 import { nodeMetadata } from '#ast/node-metadata';
@@ -110,8 +110,8 @@ export class NodeObject implements Node {
     return this.findParent(isDefinition);
   }
 
-  getSourceFile(): SourceFileNode | undefined {
-    return this.findParent(isSourceFileNode);
+  getSourceFile(): SourceFile | undefined {
+    return this.findParent(isSourceFile);
   }
 
   delete(brokenReferenceReplacer?: (node: Node) => Node) {

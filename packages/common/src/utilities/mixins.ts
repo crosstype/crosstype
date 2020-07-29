@@ -22,7 +22,7 @@ export interface MixinConfig<T extends Mixin = any> {
 /* ****************************************************************************************************************** */
 
 const isMixinConfig = (v: any): v is MixinConfig =>
-  Object.getOwnPropertyNames(v).every(n => ['mixin', 'omit', 'pick'].includes(n));
+  Object.getOwnPropertyNames(v).every(n => [ 'mixin', 'omit', 'pick' ].includes(n));
 
 // endregion
 

@@ -1,10 +1,10 @@
-import * as ts from '../../typescript'
+import * as ts from 'typescript'
 import {
   __String, BaseType, CheckFlags, ClassLikeDeclaration, CompilerHost, CompilerOptions, Declaration, emptyArray,
   getCheckFlags, getDeclarationModifierFlagsFromSymbol, getEffectiveImplementsTypeNodes, Identifier, ImportDeclaration,
   IndexKind, InterfaceType, IntrinsicType, ModifierFlags, ModuleDeclaration, NamedImports, Node, ObjectType, Program,
   Signature, SignatureKind, SourceFile, Symbol, SymbolFlags, SyntaxKind, Type, TypeChecker
-} from '../../typescript'
+} from 'typescript'
 import { ConvertibleSet, getPackageDetail, hasProperties, normalizeAndJoinPaths, truthyStr } from '../index';
 import path from 'path';
 import fs from 'fs';
@@ -277,6 +277,7 @@ export function createCompilerHostWithCache(
   });
 }
 
+// TODO - Redo with better logic
 /**
  * Check common source directory and walk up until it finds tsconfig.json
  * @param program

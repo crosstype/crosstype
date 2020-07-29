@@ -1,12 +1,12 @@
 import { createGenerator, GeneratorContext } from '@crosstype/build-tools';
 import path from 'path';
 import ts, {
-  CompilerHost, InterfaceDeclaration, Program, PropertyAssignment, QualifiedName, ScriptTarget, SourceFile, SyntaxKind,
-  Type, TypeNode, TypeFlags, UnionType, InterfaceType
-} from '@crosstype/system/typescript';
+  CompilerHost, InterfaceDeclaration, InterfaceType, Program, PropertyAssignment, QualifiedName, ScriptTarget,
+  SourceFile, SyntaxKind, Type, TypeFlags, TypeNode
+} from 'typescript';
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
 import { tsquery } from '@phenomnomnominal/tsquery';
-import { getPrimaryDeclaration, getAllBaseTypes } from '@crosstype/system';
+import { getAllBaseTypes, getPrimaryDeclaration } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** */

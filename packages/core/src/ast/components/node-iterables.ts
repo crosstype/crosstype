@@ -1,7 +1,6 @@
 import { NamedNode, Node } from '#ast/node-types';
 import { isNamedNode, isNode } from '#ast/utilities/node-typeguards';
-import { accForEach } from '@crosstype/system';
-import { mixin } from '@crosstype/system/dist/utilities/mixins';
+import { accForEach, mixin } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** */

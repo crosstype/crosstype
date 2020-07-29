@@ -275,23 +275,18 @@
   version "0.0.0"
   uid ""
 
-"@crosstype/ctl-json-schema@link:language-packages/ctl-json-schema":
+"@crosstype/common@link:packages/common":
   version "0.0.0"
-  uid ""
+  dependencies:
+    rfdc "^1.1.4"
 
-"@crosstype/ctl-python@link:language-packages/ctl-python":
+"@crosstype/ctl-json-schema@link:language-packages/ctl-json-schema":
   version "0.0.0"
   uid ""
 
 "@crosstype/ctl-typescript@link:language-packages/ctl-typescript":
   version "0.0.0"
   uid ""
-
-"@crosstype/system@link:packages/system":
-  version "0.0.0"
-  dependencies:
-    rfdc "^1.1.4"
-    typescript "~3.9.7"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -3492,6 +3487,11 @@ tr46@^2.0.2:
   dependencies:
     punycode "^2.1.1"
 
+ts-expose-internals@3.9.7-patch:
+  version "3.9.7-patch"
+  resolved "https://registry.yarnpkg.com/ts-expose-internals/-/ts-expose-internals-3.9.7-patch.tgz#563c6fa67e3f88e7ced8e5ea1270b0ddde738131"
+  integrity sha512-OFvVX9r2TzhkZBd+NHPGNKDX7O5YGJiYwtKqdXAEoqUBK3BZ0VWryLk7duhGq+pyncVbc58Q/thc7mI7RtGMrA==
+
 ts-jest@^26.1.0:
   version "26.1.3"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-26.1.3.tgz#aac928a05fdf13e3e6dfbc8caec3847442667894"
@@ -3519,10 +3519,10 @@ ts-node@^8.8.2:
     source-map-support "^0.5.17"
     yn "3.1.1"
 
-ts-patch@^1.2.4:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/ts-patch/-/ts-patch-1.2.5.tgz#329a1c7824fb66a24ab32e2d5d5a500ac6ed600a"
-  integrity sha512-Ju08nrJUdxcd9GR4RuD9yBw9OQGvqszxj5KOkIr4y1d6cJmh/trlINeBh7a8Me4nkvIXD+thgJs6gDU7JPbUug==
+ts-patch@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/ts-patch/-/ts-patch-1.3.0.tgz#1669b33d7c52e6e0628d84c8d025fee5a94e474c"
+  integrity sha512-y4U+mwiKl/46SXDeai+zITsWmCTcghJ29aakJ1ZC7NGn5qpatpXlZpnAIx0dQzR7atfwuSRNTLAgJ1QNJ/qYbA==
   dependencies:
     chalk "^3.0.0"
     global-prefix "^3.0.0"

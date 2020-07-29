@@ -14,7 +14,7 @@ import {
   createInterfaceDeclaration, createIntersectionNode, createLinkedListNode, createListNode, createMapNode,
   createMethodDeclaration, createMultiSetNode, createNamespaceNode, createNotANumberNode, createNothingNode,
   createNullNode, createObjectNode, createParameterNode, createPropertyDeclaration, createReferenceNode,
-  createRegExpLiteral, createRegExpNode, createSetNode, createSignatureNode, createSourceFileNode, createStringLiteral,
+  createRegExpLiteral, createRegExpNode, createSetNode, createSignatureNode, createSourceFile, createStringLiteral,
   createStringNode, createSymbolLiteral, createSymbolNode, createTopNode, createTrueLiteral, createTupleNode,
   createTypeArgumentNode, createTypeDeclaration, createTypeParameterDeclaration, createUnionNode,
   createVariableDeclaration, isAnonymousClass, isAnonymousFunctionNode, isAnythingNode, isArrayNode, isBooleanNode,
@@ -25,7 +25,7 @@ import {
   isIterableNode, isLinkedListNode, isListNode, isMapNode, isMethodDeclaration, isModuleNode, isMultiSetNode,
   isNamedNode, isNamespaceNode, isNotANumberNode, isNothingNode, isNullNode, isNumericNode, isObjectLikeMember,
   isObjectLikeNode, isObjectNode, isParameterNode, isPropertyDeclaration, isRealNumberLiteral, isRealNumberNode,
-  isReferenceNode, isRegExpLiteral, isRegExpNode, isSetNode, isSignatureNode, isSourceFileNode, isStringLiteral,
+  isReferenceNode, isRegExpLiteral, isRegExpNode, isSetNode, isSignatureNode, isSourceFile, isStringLiteral,
   isStringNode, isSymbolLiteral, isSymbolNode, isTopNode, isTrueLiteral, isTupleNode, isTypeArgumentNode,
   isTypeDeclaration, isTypeParameterDeclaration, isUnionNode, isVariableDeclaration
 } from '#ast/utilities';
@@ -33,7 +33,7 @@ import { NodeForKind } from '#ast/node-lookups';
 import { nodeMetadata } from '#ast/node-metadata';
 import { RootDeclaration } from '#ast/node-aliases';
 import { NodeMap, NodeSet } from '#ast/components';
-import { OneOrMore } from '@crosstype/system';
+import { OneOrMore } from '@crosstype/common';
 import { createFakeNode } from '../helpers';
 import * as nodeHelpersModule from '#ast/utilities/find-target-declarations-by-path';
 
@@ -47,7 +47,7 @@ type TypeGuard = (v: any) => boolean;
 const factories: Array<[ string, (properties?: any) => Node, NodeKind, OneOrMore<TypeGuard> ]> = [
   /* No special tests */
   [ 'NamespaceNode', createNamespaceNode, NodeKind.Namespace, [ isNamespaceNode, isModuleNode ] ],
-  [ 'SourceFileNode', createSourceFileNode, NodeKind.SourceFile, [ isSourceFileNode, isModuleNode ] ],
+  [ 'SourceFile', createSourceFile, NodeKind.SourceFile, [ isSourceFile, isModuleNode ] ],
   [ 'StringNode', createStringNode, NodeKind.String, isStringNode ],
   [ 'CharacterNode', createCharacterNode, NodeKind.Character, isCharacterNode ],
   [ 'ByteNode', createByteNode, NodeKind.Byte, isByteNode ],

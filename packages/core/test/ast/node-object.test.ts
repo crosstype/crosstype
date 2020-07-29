@@ -1,11 +1,11 @@
 import {
-  createDefinition, createIntegerLiteral, createObjectNode, createPropertyDeclaration, createSourceFileNode,
-  createStringLiteral, createTrueLiteral, createTypeDeclaration, createUnionNode, isObjectNode, isSourceFileNode,
+  createDefinition, createIntegerLiteral, createObjectNode, createPropertyDeclaration, createSourceFile,
+  createStringLiteral, createTrueLiteral, createTypeDeclaration, createUnionNode, isObjectNode, isSourceFile,
 } from '#ast/utilities';
 import { NodeMap, NodeSet } from '#ast/components/node-iterables';
 import { createFakeNode, createFakeNodes, fakeNodeKind, makeJestSafe } from '../helpers';
 import { nodeMetadata } from '#ast/node-metadata';
-import { accForEach } from '@crosstype/system';
+import { accForEach } from '@crosstype/common';
 import {
   Definition, ModifierFlags, NamedNode, Node, NodeFlags, NodeKind, NodeObject, ReferenceNode, TypeFlags
 } from '#ast';
@@ -56,7 +56,7 @@ const level1_definition = createDefinition({
 });
 
 /* Level 0 - SourceFile */
-const level0_sourceFile = createSourceFileNode({
+const level0_sourceFile = createSourceFile({
   fileName: '',
   name: 'root',
   language: 'typescript',
@@ -185,7 +185,7 @@ describe(`NodeObject`, () => {
     describe(`findParent()`, () => {
       test(`Finds parent`, () => {
         expect(topNode.findParent(isObjectNode)).toBe(level4_unionMember_object);
-        expect(topNode.findParent(isSourceFileNode)).toBe(level0_sourceFile);
+        expect(topNode.findParent(isSourceFile)).toBe(level0_sourceFile);
       });
 
       test(`Circular ref parent in lineage throws`, () => {

@@ -1,9 +1,9 @@
 {
-  "name": "@crosstype/ctl-python",
-  "description": "Python language package for CrossType",
+  "name": "@crosstype/ctl-typescript-config",
+  "description": "CrossType TypeScript language package (config only)",
   "version": "0.0.0",
-  "main": "dist/config.js",
-  "types": "dist/config.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "compile": "tsc",
     "build": "yarn run clean && yarn run compile",
@@ -25,25 +25,11 @@
     "url": "git@github.com:crosstype/crosstype.git"
   },
   "license": "MIT",
-  "keywords": [
-    "crosstype",
-    "compiler",
-    "parser",
-    "python"
-  ],
   "engines": {
     "node": ">=11.6"
   },
   "dependencies": {
-    "@crosstype/system": "~0.0.0",
-    "@crosstype/core": "~0.0.0",
-    "glob": "~7.1.6",
-    "rfdc": "^1.1.4"
-  },
-  "ctl": {
-    "experimental": true,
-    "active": true,
-    "compiler": true,
-    "parser": false
+    "typescript": "~3.9.7",
+    "@crosstype/core": "~0.0.0"
   }
 }

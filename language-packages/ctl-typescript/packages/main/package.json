@@ -1,9 +1,9 @@
 {
   "name": "@crosstype/ctl-typescript",
-  "description": "TypeScript language package for CrossType",
+  "description": "CrossType TypeScript language package ",
   "version": "0.0.0",
-  "main": "dist/config.js",
-  "types": "dist/config.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "compile": "tsc",
     "build": "yarn run clean && yarn run compile",
@@ -35,18 +35,9 @@
     "node": ">=11.6"
   },
   "peerDependencies": {
-    "typescript": ">3.0.0"
+    "@crosstype/core": "~0.0.0"
   },
   "dependencies": {
-    "@crosstype/system": "~0.0.0",
-    "@crosstype/core": "~0.0.0",
-    "glob": "~7.1.6",
-    "rfdc": "^1.1.4"
-  },
-  "ctl": {
-    "experimental": true,
-    "active": true,
-    "compiler": false,
-    "parser": true
+    "@crosstype/ctl-typescript-config": "0.0.0"
   }
 }

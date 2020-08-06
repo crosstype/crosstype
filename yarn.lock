@@ -275,10 +275,16 @@
   version "0.0.0"
   uid ""
 
-"@crosstype/common@link:packages/common":
+"@crosstype/common@0.0.0", "@crosstype/common@^0.0.0":
   version "0.0.0"
+  resolved "https://registry.yarnpkg.com/@crosstype/common/-/common-0.0.0.tgz#406f942f06b10ffd3de85bc04092607f4c32f3c1"
+  integrity sha512-QquIL+bxaO1b9MmZoiDKHDPypv4c8/4EykA4KOm5QIG3/A3ZIe0GUvD3E/pgVv56vfXRJf/Gh00OHXR0d7dpYA==
   dependencies:
     rfdc "^1.1.4"
+
+"@crosstype/common@link:packages/common":
+  version "0.0.0"
+  uid ""
 
 "@crosstype/ctl-typescript@link:language-packages/ctl-typescript":
   version "0.0.0"

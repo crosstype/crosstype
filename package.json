@@ -58,8 +58,7 @@
   "workspaces": [
     "packages/common",
     "packages/build-tools",
-    "packages/core",
-    "language-packages/ctl-typescript/packages/*"
+    "packages/core"
   ],
   "dependencies": {}
 }

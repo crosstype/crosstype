@@ -1,3 +1,5 @@
+// noinspection ES6UnusedImports
+import {} from 'ts-expose-internals';
 import { createGenerator, GeneratorContext } from '@crosstype/build-tools';
 import path from 'path';
 import ts, {
@@ -85,7 +87,7 @@ function getASTDetail(program: Program): ASTDetail {
   function getInterfaceNodes(declaration: InterfaceDeclaration): { typeFlags: string[], flags: string[] } | undefined {
     const isNodeBasedInterface = (declaration: InterfaceDeclaration): boolean =>
       (declaration !== baseNodeInterface) &&
-      !!checker.isTypeAssignableTo(checker.getTypeAtLocation(declaration), baseNodeInterfaceType);
+      checker.isTypeAssignableTo(checker.getTypeAtLocation(declaration), baseNodeInterfaceType);
     const res: { typeFlags: string[], flags: string[] } = { typeFlags: [], flags: [] };
     const addFlags = (kind: 'type' | 'node', flags: string | undefined | string[]) => {
       if (!flags) return;

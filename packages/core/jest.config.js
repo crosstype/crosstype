@@ -13,6 +13,6 @@ module.exports = {
   testTimeout: 10000,
 
   moduleNameMapper: {
-    "#(.*)": [ "<rootDir>src/$1", "<rootDir>generated/$1" ]
+    "#(.*)": [ "<rootDir>/src/$1", "<rootDir>/generated/$1" ]
   }
 }

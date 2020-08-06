@@ -280,10 +280,6 @@
   dependencies:
     rfdc "^1.1.4"
 
-"@crosstype/ctl-json-schema@link:language-packages/ctl-json-schema":
-  version "0.0.0"
-  uid ""
-
 "@crosstype/ctl-typescript@link:language-packages/ctl-typescript":
   version "0.0.0"
   uid ""
@@ -3576,12 +3572,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript-transform-paths@^1.1.14:
-  version "1.1.14"
-  resolved "https://registry.yarnpkg.com/typescript-transform-paths/-/typescript-transform-paths-1.1.14.tgz#4a3800a04977a527270980488f9c93055a31e474"
-  integrity sha512-oUXMH4D+GSqr/tGMlQVOB0RC9IUj1NokQVzRSbD+YeER5gR/U7vqj8KKrwuRSGd1xgKP/St+HjM8zoB57wVGDA==
-  dependencies:
-    slash "^3.0.0"
+typescript-transform-paths@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/typescript-transform-paths/-/typescript-transform-paths-2.0.0.tgz#7dfaded593c45aba209009b820fc098a11862fa6"
+  integrity sha512-62mmNsZ6mUMrcusTHyAJBuyZl+5ltsArFVXj6AdRIF/6IJUykYwly0LtjeEPE5MTtkhkCfv4s9eYFb73giKrfQ==
 
 typescript@~3.9.7:
   version "3.9.7"

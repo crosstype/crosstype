@@ -13,3 +13,7 @@ in their projects!
 - Extended TypeScript compiler API methods
 - Mixin decorator
 - General TS/JS helpers (typed getKeys, pick, omit, etc.)
+
+## Note 
+
+Per NPM spec, minor versions may contain breaking changes until version 1.0.0 is reached

@@ -1,7 +1,7 @@
 {
   "name": "@crosstype/common",
   "description": "Common helpers & types for TypeScript projects",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,14 +25,14 @@
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist",
-    "typescript"
+    "dist"
   ],
   "keywords": [],
   "engines": {
     "node": ">=11.6"
   },
   "dependencies": {
-    "rfdc": "^1.1.4"
+    "rfdc": "^1.1.4",
+    "@types/rfdc": "^1.1.0"
   }
 }

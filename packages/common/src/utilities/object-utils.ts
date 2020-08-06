@@ -1,4 +1,4 @@
-import { accForEach } from './general-utils';
+import { accForEach, camelToSnake, snakeToCamel } from './general-utils';
 
 
 /* ****************************************************************************************************************** *
@@ -40,7 +40,6 @@ export function omit<T, K extends keyof T>(obj: T, ...keys: K[]): Omit<T, K> {
  */
 export const getKeys = <T>(obj: T): [keyof T] => Object.keys(obj) as [keyof T];
 
-
 /**
  * Verify that object has all provided keys
  * @param strict - Can *only* have the provided keys
@@ -60,3 +59,27 @@ export const hasProperties = (o: object, propNames: string[], strict?: boolean) 
   const objProps = Object.getOwnPropertyNames(o);
   return !strict ? propNames.every(k => objProps.includes(k)) : (objProps.sort().toString() === propNames.sort().toString());
 };
+
+/**
+ * Returns new object with snake case keys
+ */
+export const snakeCaseObject = <T = any>(o: object): T => {
+  const res = Object.create(Object.getPrototypeOf(o), Object.getOwnPropertyDescriptors(o)) as any;
+  for (const [ key, value ] of Object.entries(res)) {
+    delete res[key];
+    res[camelToSnake(key)] = value;
+  }
+  return res;
+}
+
+/**
+ * Returns new object with camel case keys
+ */
+export const camelCaseObject = <T = any>(o: object): T => {
+  const res = Object.create(Object.getPrototypeOf(o), Object.getOwnPropertyDescriptors(o)) as any;
+  for (const [ key, value ] of Object.entries(res)) {
+    delete res[key];
+    res[snakeToCamel(key)] = value;
+  }
+  return res;
+}

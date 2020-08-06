@@ -95,4 +95,16 @@ export const normalizeAndJoinPaths = (...paths: (string | undefined)[]) =>
     .replace(/\/\.\//g, '/')    // Remove /./
     .replace(/\/$/g, '');       // No trailing slash
 
+/**
+ * Converts string from snake_case to camelCase
+ */
+export const snakeToCamel = (s: string) =>
+  s.toLowerCase().replace(/[-_][a-zA-Z]/g, (group) => group.slice(-1).toUpperCase());
+
+/**
+ * Converts string from camelCase to snake_case
+ */
+export const camelToSnake = (s: string) =>
+  s.replace(/[A-Z]/g, (group) => `_${group.toLowerCase()}`);
+
 // endregion

@@ -70,9 +70,10 @@ export enum DefinitionFlags {
   Interface = 1 << 3,
   Type = 1 << 4,
   Enum = 1 << 5,
+  Module = 1 << 6,
 
   /* Modifiers */
-  HasMultipleDeclarations = 1 << 6,
+  HasMultipleDeclarations = 1 << 7,
   Parameterized = 1 << 29       // Instance of a generic with supplied type-arguments (combined with Class or Interface)
 }
 
@@ -168,7 +169,7 @@ export enum NodeKind {
   Null,
 
   /* Module */
-  Namespace,
+  ModuleDeclaration,
   SourceFile,
 
   /* Object-Like */
@@ -198,9 +199,9 @@ export enum SignatureKind {
 }
 
 export enum DecimalKind {
-  Float,
+  Automatic,
+  Floating,
   Fixed,
-  Either
 }
 
 // endregion

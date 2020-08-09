@@ -1,6 +1,5 @@
 import { Definition, NamedNode, Node, ReferenceNode, SourceFile } from '#ast/node-types';
 import { ModifierFlags, NodeFlags, NodeKind, TypeFlags } from '#ast/enums';
-import { CompileOptionsSet } from '#options/types';
 import { Language } from '#language/language';
 import { accForEach, reverseMap } from '@crosstype/common';
 import { NodeMap, NodeSet, ReadonlyNodeSet } from '#ast/components';
@@ -8,6 +7,7 @@ import { isDefinition, isNamedNode, isNode, isSourceFile } from '#ast/utilities/
 import { cloneNode } from '#ast/utilities/clone-node';
 import { NodeMetadata, NodeOrigin } from '#ast/shared-types';
 import { nodeMetadata } from '#ast/node-metadata';
+import { CompileOptionsSet } from '../types';
 
 
 /* ****************************************************************************************************************** *

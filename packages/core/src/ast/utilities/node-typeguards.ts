@@ -4,7 +4,7 @@ import {
   DecimalLiteral, DecimalNode, Definition, EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration,
   FunctionNode, GenericIterable, ImaginaryNumberLiteral, InfinityNode, IntegerLiteral, IntegerNode,
   InterfaceDeclaration, IntersectionNode, IterableNode, LinkedListNode, ListNode, MapNode, MethodDeclaration,
-  ModuleNode, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
+  ModuleDeclaration, ModuleLikeNode, MultiSetNode, NamedNode, Node, NotANumberNode, NothingNode, NullNode, NumericNode,
   ObjectLikeMember, ObjectLikeNode, ObjectNode, ParameterNode, PropertyDeclaration, RealNumberLiteral, RealNumberNode,
   ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode, SourceFile, StringLiteral, StringNode,
   SymbolLiteral, SymbolNode, TopNode, TrueLiteral, TupleNode, TypeArgumentNode, TypeDeclaration,
@@ -26,8 +26,8 @@ export const isRootDeclaration = (n: Node): n is RootDeclaration => isDeclaratio
 
 export const isDefinition = (n: Node): n is Definition => !!(n.flags & NodeFlags.Definition);
 
-export const isModuleNode = (n: Node): n is ModuleNode => !!(n.typeFlags & TypeFlags.Module);
-export const isNamespaceNode = (n: Node): n is NamespaceNode => (n.kind === NodeKind.Namespace);
+export const isModuleNode = (n: Node): n is ModuleLikeNode => !!(n.typeFlags & TypeFlags.Module);
+export const isNamespaceNode = (n: Node): n is ModuleDeclaration => (n.kind === NodeKind.ModuleDeclaration);
 export const isSourceFile = (n: Node): n is SourceFile => (n.kind === NodeKind.SourceFile);
 
 export const isStringNode = (n: Node): n is StringNode => (n.kind === NodeKind.String);

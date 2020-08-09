@@ -286,7 +286,16 @@
   version "0.0.0"
   uid ""
 
-"@crosstype/ctl-typescript@link:language-packages/ctl-typescript":
+"@crosstype/core@link:packages/core":
+  version "0.0.0"
+  uid ""
+
+"@crosstype/ctl-typescript-config@link:language-packages/ctl-typescript/packages/config":
+  version "0.0.0"
+  dependencies:
+    typescript "~3.9.7"
+
+"@crosstype/ctl-typescript@link:language-packages/ctl-typescript/packages/main":
   version "0.0.0"
   uid ""
 
@@ -1390,6 +1399,11 @@ expand-brackets@^2.1.4:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
+
+expect-type@^0.7.9:
+  version "0.7.9"
+  resolved "https://registry.yarnpkg.com/expect-type/-/expect-type-0.7.9.tgz#3036ebb8d09cb1975c764355c747a79d27467c2d"
+  integrity sha512-jvPxXvxzcXNOoRVEw5KtT41d3b9xmeUs6zThmWTDoRuoyK5dAwtsZhUGxF1AGZvgN3LHZ0LDsN0usmK5jtdL6w==
 
 expect@^26.2.0:
   version "26.2.0"
@@ -2956,6 +2970,11 @@ rechoir@^0.6.2:
   dependencies:
     resolve "^1.1.6"
 
+reflect-metadata@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
+  integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
+
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/regex-not/-/regex-not-1.0.2.tgz#1f4ece27e00b0b65e0247a6810e6a85d83a5752c"
@@ -3603,7 +3622,7 @@ typescript-transform-paths@^2.0.0:
   resolved "https://registry.yarnpkg.com/typescript-transform-paths/-/typescript-transform-paths-2.0.0.tgz#7dfaded593c45aba209009b820fc098a11862fa6"
   integrity sha512-62mmNsZ6mUMrcusTHyAJBuyZl+5ltsArFVXj6AdRIF/6IJUykYwly0LtjeEPE5MTtkhkCfv4s9eYFb73giKrfQ==
 
-typescript@~3.9.7:
+typescript@^3.9.7, typescript@~3.9.7:
   version "3.9.7"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
   integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==

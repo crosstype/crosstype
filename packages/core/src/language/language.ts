@@ -1,6 +1,6 @@
 import { removeUndefinedFromArray } from '@crosstype/common';
 import { JsonSchema, Python, TypeScript } from './imports';
-import { Compiler, LanguagePackage, Parser } from '#main';
+import { Compiler, LanguagePackage, Parser } from '#system';
 
 
 /* ****************************************************************************************************************** */

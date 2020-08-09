@@ -1,5 +1,4 @@
-import { Node, SourceFile } from '#ast';
-import { DefinitionCollection } from '../types';
+import { SourceFile } from '#ast';
 import { Language } from '#language/language';
 import { CrossTypeHost } from './host';
 import { LanguagePackage } from './language-package';
@@ -7,39 +6,50 @@ import { NullableJsonValue } from '@crosstype/common';
 
 
 /* ****************************************************************************************************************** */
-// region: Type
+// region: Types
 /* ****************************************************************************************************************** */
 
-export interface Parser {
-  pkg: LanguagePackage
-
-  /**
-   * Parse files (from array of file paths)
-   */
-  (
-    fileNames: string[],
-    options?: Parser.OptionsBase,
-    hooks?: Parser.HooksBase,
-    host?: CrossTypeHost
-  ): DefinitionCollection
-  /**
-   * Parse files (object of { [filename]: sourceText })
-   */
-  (
-    files: { [fileName: string]: /* SourceText */ string },
-    options?: Parser.OptionsBase,
-    hooks?: Parser.HooksBase,
-    host?: CrossTypeHost
-  ): DefinitionCollection
+export interface ParserFunction {
   /**
    * Parse sourceText
    */
-  (
+    <O extends Parser.OptionsBase, H extends Parser.HooksBase>(
     sourceText: string,
-    options?: Parser.OptionsBase,
-    hooks?: Parser.HooksBase,
+    options?: O,
+    hooks?: H,
     host?: CrossTypeHost
-  ): DefinitionCollection
+  ): SourceFile[]
+  /**
+   * Parse files (from array of file paths)
+   */
+  <O extends Parser.OptionsBase, H extends Parser.HooksBase>(
+    fileNames: string[],
+    options?: O,
+    hooks?: H,
+    host?: CrossTypeHost
+  ): SourceFile[]
+  /**
+   * Parse files (object of { [filename]: sourceText })
+   */
+  <O extends Parser.OptionsBase, H extends Parser.HooksBase>(
+    files: { [fileName: string]: /* SourceText */ string },
+    options?: O,
+    hooks?: H,
+    host?: CrossTypeHost
+  ): SourceFile[]
+  /**
+   * Parse files in package file
+   */
+  <O extends Parser.OptionsBase, H extends Parser.HooksBase>(
+    packageFile: string,
+    options?: O,
+    hooks?: H,
+    host?: CrossTypeHost
+  ): SourceFile[]
+}
+
+export type Parser<T extends ParserFunction = ParserFunction> = T & {
+  pkg: LanguagePackage
 }
 
 // endregion
@@ -54,7 +64,16 @@ export namespace Parser {
   // region: Types
   /* ********************************************************* */
 
-  export type OptionsBase = Record<string, NullableJsonValue>
+  type ParserOptionsValue = NullableJsonValue | undefined
+
+  export interface OptionsBase {
+    /**
+     * Root directory for project files (defaults to cwd)
+     */
+    rootDir: string
+
+    [p:string]: ParserOptionsValue
+  }
 
   export interface HooksBase {
     [key:string]: NullableJsonValue
@@ -72,39 +91,7 @@ export namespace Parser {
   // region: Utilities
   /* ********************************************************* */
 
-  /**
-   * Compile a DefinitionCollection
-   * @param languages - If not provided, it will be compiled to all available languages
-   */
-  export declare function parse(
-    definitions: DefinitionCollection,
-    options?: AvailableOptions,
-    hooks?: AvailableHooks,
-    host?: CrossTypeHost,
-    languages?: AvailableLanguages['shortName']
-  ): SourceFile[]
-
-  /**
-   * Compile a single node to a single language
-   */
-  export declare function compileNode(
-    node: Node,
-    language: AvailableLanguages['shortName'],
-    options?: AvailableOptions,
-    hooks?: AvailableHooks,
-    host?: CrossTypeHost,
-  ): string
-  /**
-   * Compile a single node to multiple languages
-   * @param languages - If not provided, it will be compiled to all available languages
-   */
-  export declare function compileNode<L extends Array<AvailableLanguages['shortName']> = Array<AvailableLanguages['shortName']>>(
-    node: Node,
-    languages?: L,
-    options?: AvailableOptions,
-    hooks?: AvailableHooks,
-    host?: CrossTypeHost,
-  ): { [K in L[number]]: string }
+  // TODO - Universal parse() which allows specifying language
 
   // endregion
 }

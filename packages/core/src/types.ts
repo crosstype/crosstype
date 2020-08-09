@@ -1,3 +1,6 @@
+import { Language } from '#language/language';
+
+
 /* ****************************************************************************************************************** */
 // region: General
 /* ****************************************************************************************************************** */
@@ -14,11 +17,21 @@ export type NumberRange = { min: number, max?: number }
 
 
 /* ****************************************************************************************************************** */
-// region: Placeholder Types
+// region: Placeholders
 /* ****************************************************************************************************************** */
 // Will be replaced
 
-export type DefinitionCollection = any
 export type OptionsConfig = any
+
+type CompilerLanguageCodes = Language.CompilerLanguages['shortName']
+type ParserLanguageCodes = Language.ParserLanguages['shortName']
+
+export type CompileOptionsSet = {
+  [K in CompilerLanguageCodes]: Language.GetLanguage<K>['optionsTypes']['CompileOptions']
+}
+
+export type ParseOptionsSet = {
+  [K in ParserLanguageCodes]: Language.GetLanguage<K>['optionsTypes']['ParseOptions']
+}
 
 // endregion

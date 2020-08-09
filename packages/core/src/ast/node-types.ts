@@ -6,10 +6,9 @@
 import {
   DecimalKind, DefinitionFlags, LinkedListFlags, ModifierFlags, NodeFlags, NodeKind, OrderKind, SignatureKind, TypeFlags
 } from './enums';
-import { DefinitionCollection, NumberRange } from '../types';
+import { CompileOptionsSet, NumberRange } from '../types';
 import { NodeMap, NodeSet, ReadonlyNodeMap, ReadonlyNodeSet } from '#ast/components';
 import { Language } from '#language/language';
-import { CompileOptionsSet } from '#options/types';
 import { NodeIndex, NodeOrigin, OutputFile } from '#ast/shared-types';
 import { Declaration, RootDeclaration, ValueNode } from '#ast/node-aliases';
 
@@ -170,8 +169,7 @@ export interface DeclarationBase<T extends NodeIndex = string> extends NamedNode
 
 export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definition'> {
   readonly kind: NodeKind.Definition
-  readonly definitionFlags: DefinitionFlags     // getter, then remove this note
-  readonly collection?: DefinitionCollection
+  readonly definitionFlags: DefinitionFlags
   outputs?: OutputFile[]
   name: string
   declarations: NodeSet<RootDeclaration>
@@ -187,17 +185,15 @@ export interface Definition extends NamedNode<string>, Flags<NodeFlags, 'Definit
 // region: Module Nodes
 /* ****************************************************************************************************************** */
 
-export type ModuleNode = NamespaceNode | SourceFile
+export type ModuleLikeNode = ModuleDeclaration | SourceFile
 
-interface ModuleBase extends NamedNode<string> {
+interface ModuleBase extends DeclarationBase {
   name: string
-  exported?: boolean
   definitions?: NodeMap<Definition>
-  namespaces?: NodeMap<NamespaceNode>
 }
 
-export interface NamespaceNode extends ModuleBase, Flags<TypeFlags, 'Module'> {
-  readonly kind: NodeKind.Namespace
+export interface ModuleDeclaration extends ModuleBase, Flags<TypeFlags, 'Module'>, Flags<NodeFlags, 'Declaration'> {
+  readonly kind: NodeKind.ModuleDeclaration
   exported?: boolean
 }
 
@@ -291,7 +287,6 @@ export interface DecimalNode extends Node, VariableBitLength, Flags<TypeFlags, '
   decimalKind: DecimalKind
   /**
    * Optionally specify decimal precision
-   * Q: Is this valid?
    */
   decimalPrecision?: number
 }
@@ -372,8 +367,8 @@ export interface DateTimeLiteral extends Node, Flags<TypeFlags, 'Literal'> {
 export interface SymbolLiteral extends Node, Flags<TypeFlags, 'Literal'> {
   readonly kind: NodeKind.SymbolLiteral
   value?: string | number
-  // Is symbol unique regardless of its value?
-  // In languages like Ruby, there a single symbol per name. In that case, alwaysUnique is false.
+  // Q: Isn't a symbol unique regardless of its value?
+  // In languages like Ruby, there is a single symbol per name. In that case, alwaysUnique is false.
   // JavaScript Symbols, in contrast, are always unique unless a Global Symbol (see: https://javascript.info/symbol)
   alwaysUnique: boolean
 }

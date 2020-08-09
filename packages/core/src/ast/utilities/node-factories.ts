@@ -4,10 +4,10 @@ import {
   ClassDeclaration, ComplexNumberNode, DateNode, DateTimeLiteral, DateTimeNode, DecimalLiteral, DecimalNode, Definition,
   EnumDeclaration, EnumMemberDeclaration, FalseLiteral, FunctionDeclaration, GenericIterable, ImaginaryNumberLiteral,
   InfinityNode, IntegerLiteral, IntegerNode, InterfaceDeclaration, IntersectionNode, LinkedListNode, ListNode, MapNode,
-  MethodDeclaration, MultiSetNode, NamedNode, NamespaceNode, Node, NotANumberNode, NothingNode, NullNode, ObjectNode,
-  ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode, SignatureNode,
-  SourceFile, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode, TypeArgumentNode,
-  TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
+  MethodDeclaration, ModuleDeclaration, MultiSetNode, NamedNode, Node, NotANumberNode, NothingNode, NullNode,
+  ObjectNode, ObjectNodeBase, ParameterNode, PropertyDeclaration, ReferenceNode, RegExpLiteral, RegExpNode, SetNode,
+  SignatureNode, SourceFile, StringLiteral, StringNode, SymbolLiteral, SymbolNode, TrueLiteral, TupleNode,
+  TypeArgumentNode, TypeDeclaration, TypeParameterDeclaration, UnionNode, VariableDeclaration
 } from '#ast/node-types';
 import { omit } from '@crosstype/common';
 import { NodeForKind } from '#ast/node-lookups';
@@ -176,8 +176,8 @@ export function createDefinition(properties: NodeProperties<Definition, 'definit
 // region: Module Nodes
 /* ****************************************************************************************************************** */
 
-export function createNamespaceNode(properties: NodeProperties<NamespaceNode>): NamespaceNode {
-  return createNode(NodeKind.Namespace, properties);
+export function createNamespaceNode(properties: NodeProperties<ModuleDeclaration>): ModuleDeclaration {
+  return createNode(NodeKind.ModuleDeclaration, properties);
 }
 
 export function createSourceFile(properties: NodeProperties<SourceFile>): SourceFile {
@@ -534,8 +534,9 @@ export function createNullNode(properties?: NodeProperties<NullNode>): NullNode 
 // region: Reference Node
 /* ****************************************************************************************************************** */
 
-export function createReferenceNode(properties: NodeProperties<ReferenceNode, 'targetBase' | 'path'>): ReferenceNode
 export function createReferenceNode(properties: NodeProperties<ReferenceNode, 'target'>): ReferenceNode
+/** @internal */
+export function createReferenceNode(properties: NodeProperties<ReferenceNode, 'targetBase' | 'path'>): ReferenceNode
 export function createReferenceNode(properties: Partial<NodeProperties<ReferenceNode>>): ReferenceNode {
   let target: Declaration | undefined
 

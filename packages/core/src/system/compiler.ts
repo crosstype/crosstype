@@ -1,5 +1,4 @@
 import { Node, SourceFile } from '#ast';
-import { DefinitionCollection } from '../types';
 import { Language } from '#language/language';
 import { CrossTypeHost } from './host';
 import { LanguagePackage } from './language-package';
@@ -10,9 +9,7 @@ import { NullableJsonValue } from '@crosstype/common';
 // region: Type
 /* ****************************************************************************************************************** */
 
-export interface Compiler {
-  pkg: LanguagePackage
-
+export interface CompilerFunction {
   /**
    * Compile multiple output files
    */
@@ -31,6 +28,10 @@ export interface Compiler {
     hooks?: Compiler.HooksBase,
     host?: CrossTypeHost
   ): string
+}
+
+export type Compiler<T extends CompilerFunction = CompilerFunction> = T & {
+  pkg: LanguagePackage
 }
 
 // endregion
@@ -63,11 +64,11 @@ export namespace Compiler {
   /* ********************************************************* */
 
   /**
-   * Compile a DefinitionCollection
+   * Compile SourceFiles
    * @param languages - If not provided, it will be compiled to all available languages
    */
   export declare function compile(
-    definitions: DefinitionCollection,
+    sourceFiles: SourceFile[],
     options?: AvailableOptions,
     hooks?: AvailableHooks,
     host?: CrossTypeHost,

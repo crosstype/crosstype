@@ -2,7 +2,7 @@ import { SourceFileInfo } from '../types';
 import { TagMap } from '#ast/components';
 import { SymbolLiteral } from '#ast/node-types';
 import { NodeFlags, TypeFlags } from '#ast/enums';
-import { Compiler } from '#main/compiler';
+import { Compiler } from '#system/compiler';
 
 
 /* ****************************************************************************************************************** */

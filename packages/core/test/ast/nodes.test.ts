@@ -46,7 +46,7 @@ type TypeGuard = (v: any) => boolean;
 
 const factories: Array<[ string, (properties?: any) => Node, NodeKind, OneOrMore<TypeGuard> ]> = [
   /* No special tests */
-  [ 'NamespaceNode', createNamespaceNode, NodeKind.Namespace, [ isNamespaceNode, isModuleNode ] ],
+  [ 'NamespaceNode', createNamespaceNode, NodeKind.ModuleDeclaration, [ isNamespaceNode, isModuleNode ] ],
   [ 'SourceFile', createSourceFile, NodeKind.SourceFile, [ isSourceFile, isModuleNode ] ],
   [ 'StringNode', createStringNode, NodeKind.String, isStringNode ],
   [ 'CharacterNode', createCharacterNode, NodeKind.Character, isCharacterNode ],

@@ -38,6 +38,7 @@
     "@types/minimist": "^1.2.0",
     "@types/node": "^12.12.7",
     "@types/rfdc": "^1.1.0",
+    "expect-type": "^0.7.9",
     "is-glob": "^4.0.1",
     "jest": "^26.1.0",
     "rimraf": "^3.0.2",
@@ -60,5 +61,7 @@
     "packages/build-tools",
     "packages/core"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  }
 }

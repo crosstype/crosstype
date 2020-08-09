@@ -14,8 +14,8 @@
       "#language/*": [ "language/*" ],
       "#options": [ "options" ],
       "#options/*": [ "options/*" ],
-      "#main": [ "main" ],
-      "#main/*": [ "main/*" ]
+      "#system": [ "system" ],
+      "#system/*": [ "system/*" ]
     }
   }
 }

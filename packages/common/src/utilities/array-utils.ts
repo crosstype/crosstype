@@ -1,8 +1,10 @@
+/* ****************************************************************************************************************** */
+// region: General Array Utils
+/* ****************************************************************************************************************** */
 
 
-/* ****************************************************************************************************************** *
- * Array Utils
- * ****************************************************************************************************************** */
+// endregion
+
 /**
  * Convert array to single item if only one in the array
  */
@@ -29,6 +31,17 @@ export function removeUndefinedFromArray<T>(arr: T[]): Exclude<T, undefined>[] {
   return [ ...arr ].filter(val => val !== undefined) as any;
 }
 
+
+/* ****************************************************************************************************************** */
+// region: Object Nesting
+/* ****************************************************************************************************************** */
+
+export type NestedObject<T extends { [p: string]: any }, TChildrenKey extends string> =
+  T &
+  { [K in TChildrenKey]: NestedObject<T, TChildrenKey>[] } &
+  { flatten(): NestedObject<T, TChildrenKey>[] }
+
+
 // @formatter:off
 /**
  * Takes Array of Objects and returns a flattenable array of root objects with nested children (recursively) on the objects
@@ -43,7 +56,7 @@ export function nestObjects<T extends { [p:string]: any }, TChildrenKey extends 
   primaryKey: keyof T,
   parentKey: keyof T,
   childrenKey: TChildrenKey
-): T & { [K in TChildrenKey]: T[] }[] & { flatten(): T[] }
+): NestedObject<T, TChildrenKey>[]
 /**
  * Takes Array of Objects and returns a flattenable array of root objects with nested children (recursively) on the objects
  * (Use res.flatten() to get a flattened array)
@@ -57,13 +70,14 @@ export function nestObjects<
   T extends { [p:string]: any },
   TChildrenKey extends string,
   TFormatter extends (o: T) => unknown
-  >(
+>(
   objects: T[],
   primaryKey: keyof T,
   parentKey: keyof T,
   childrenKey: TChildrenKey,
   preFormatter: TFormatter
-): TFormatter extends () => infer U ? U & { [K in TChildrenKey]: U[] }[] & { flatten(): U & { [K in TChildrenKey]: U[] } } : never
+): TFormatter extends () => infer U ? NestedObject<U, TChildrenKey>[] : never
+// noinspection BadExpressionStatementJS
 export function nestObjects<T, TChildrenKey extends string>(
   objects: T[],
   primaryKey: keyof T,
@@ -90,7 +104,8 @@ export function nestObjects<T, TChildrenKey extends string>(
 
   for (const item of newObjects) {
     item[childrenKey] = newObjects.filter(i => i[parentKey] === item[primaryKey]);
-    if (!item.hasOwnProperty(parentKey)) rootItems.push(item);
+    // noinspection BadExpressionStatementJS
+    (item[parentKey] ?? rootItems.push(item));
   }
 
   return rootItems;

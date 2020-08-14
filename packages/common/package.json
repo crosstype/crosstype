@@ -33,6 +33,8 @@
   },
   "dependencies": {
     "rfdc": "^1.1.4",
+    "deepmerge": "^4.2.2",
+    "@types/deepmerge": "^2.2.0",
     "@types/rfdc": "^1.1.0"
   }
 }

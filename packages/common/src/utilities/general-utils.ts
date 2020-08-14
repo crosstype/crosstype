@@ -38,11 +38,6 @@ export const isJSONObject = (o: any) =>
 export const cast = <T>(value?: any): T => value;
 
 /**
- * Deep Copy object using rfdc
- */
-export { default as deepCopy } from 'rfdc';
-
-/**
  * Swap key & value in a map
  */
 export const reverseMap = <TKeyType, TValType>(map: Map<TKeyType, TValType>): Map<TValType, TKeyType> =>
@@ -106,5 +101,22 @@ export const snakeToCamel = (s: string) =>
  */
 export const camelToSnake = (s: string) =>
   s.replace(/[A-Z]/g, (group) => `_${group.toLowerCase()}`);
+
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: Deep copy / merge
+/* ****************************************************************************************************************** */
+
+/**
+ * Deep Copy (uses package: rfdc)
+ */
+export { default as deepCopy } from 'rfdc';
+
+/**
+ * Deep Merge (uses package: deepmerge)
+ */
+export { default as deepMerge } from 'deepmerge';
 
 // endregion

@@ -3,8 +3,6 @@
 /* ****************************************************************************************************************** */
 
 
-// endregion
-
 /**
  * Convert array to single item if only one in the array
  */
@@ -30,6 +28,8 @@ export function uniqueArray<T, TBoolean extends boolean>(arr: T[], removeUndefin
 export function removeUndefinedFromArray<T>(arr: T[]): Exclude<T, undefined>[] {
   return [ ...arr ].filter(val => val !== undefined) as any;
 }
+
+// endregion
 
 
 /* ****************************************************************************************************************** */

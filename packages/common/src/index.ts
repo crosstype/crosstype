@@ -1,5 +1,6 @@
 // noinspection ES6UnusedImports
 import {} from 'ts-expose-internals'
+import 'reflect-metadata';
 
 
 export * from './components'

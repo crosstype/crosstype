@@ -2,7 +2,6 @@
 // region: General Array Utils
 /* ****************************************************************************************************************** */
 
-
 /**
  * Convert array to single item if only one in the array
  */
@@ -14,19 +13,51 @@ export const convertSingleElementArray = <T>(v: T): T extends ArrayLike<any> ? T
 export const undefinedIfEmptyArray = <T extends Iterable<any> | ArrayLike<any>>(arr: T | undefined) =>
   arr && ((Array.isArray(arr) && arr.length) || Array.from(arr).length) ? arr : void 0;
 
-/**
- * Filter Array for unique only, optionally remove undefined values
- */
-export function uniqueArray<T, TBoolean extends boolean>(arr: T[], removeUndefined?: TBoolean):
-  TBoolean extends true ? Exclude<T, undefined>[] : T[] {
-  return [ ...arr ].filter((val, i) => (arr.indexOf(val) === i) && (!removeUndefined || val !== undefined)) as any;
-}
+// endregion
+
+
+/* ****************************************************************************************************************** */
+// region: Predicates
+/* ****************************************************************************************************************** */
 
 /**
- * Remove undefined values from array
+ * Predicates to be used with filter
  */
-export function removeUndefinedFromArray<T>(arr: T[]): Exclude<T, undefined>[] {
-  return [ ...arr ].filter(val => val !== undefined) as any;
+export namespace predicates {
+  export const unique = (element: any, i: number, arr: any[]) => (arr.indexOf(element) === i);
+  export const notNullish = (element: any) => (element !== undefined) && (element !== null);
+  export const notNullishUnique = (element: any, i: number, arr: any[]) => notNullish(element) && unique(element, i, arr);
+  /**
+   * Identifies items which occur more than N times
+   */
+  export const occursMoreThan = (times: number) => {
+    const seen = new Map<any, number>();
+    return (element: any) => {
+      const seenTimes = (seen.get(element) ?? 0) + 1;
+      if (seenTimes <= (times + 1)) seen.set(element, seenTimes);
+      return (seenTimes === (times + 1))
+    }
+  }
+  /**
+   * Identifies items which occur fewer than N times
+   */
+  export const occursFewerThan = (times: number) => {
+    let count: Map<any, number>;
+    const seen = new Set<any>();
+    return (element: any, i: number, arr: any[]) => {
+      if (!count) {
+        count = new Map();
+        arr.forEach(item => count.set(item, (count.get(item) || 0) + 1));
+      }
+
+      if (!seen.has(element) && (count.get(element)! < times)) {
+        seen.add(element);
+        return true;
+      }
+
+      return false;
+    }
+  }
 }
 
 // endregion

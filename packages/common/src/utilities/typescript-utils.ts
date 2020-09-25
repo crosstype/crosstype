@@ -247,6 +247,23 @@ export function hasPrivateModifier(typeOrSymbol: Type | Symbol): boolean {
   ));
 }
 
+/**
+ * Get JSDoc tags from target as array of tuples
+ */
+// TODO - convert to named tuples after upgrade to TS 4
+export function getTags(target: Symbol | Type | Declaration | Node):
+  Array<[ /* name: */ string, /* value: */ (string | undefined) ]> | undefined
+{
+  const tags = isType(target) ? getSymbolForType(target)?.getJsDocTags() :
+               isSymbol(target) ? target.getJsDocTags() :
+               ts.isDeclaration(target) ? ts.JsDoc.getJsDocTagsFromDeclarations([ target ]) :
+               target.symbol?.getJsDocTags();
+
+  if (!tags) return void 0;
+
+  return tags.map(({ name, text }) => [ name, text ]);
+}
+
 // endregion
 
 

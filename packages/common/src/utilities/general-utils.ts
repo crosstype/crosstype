@@ -43,14 +43,28 @@ export const cast = <T>(value?: any): T => value;
 export const reverseMap = <TKeyType, TValType>(map: Map<TKeyType, TValType>): Map<TValType, TKeyType> =>
   new Map([ ...map.entries() ].map(([ k, v ]) => [ v, k ]));
 
+// @formatter:off
 /**
  * forEach with accumulator. This is meant to replace difficult to read Array.reduce methods.
  */
 export function accForEach<T, Acc>(
+  arr: T[],
+  acc: Acc,
+  cb: (item: T, acc: Acc, index: number, arr: T[]) => void
+): Acc
+/**
+ * forEach with accumulator. This is meant to replace difficult to read Array.reduce methods.
+ */
+export function accForEach<T, Acc>(
+  iterable: Iterable<T>,
+  acc: Acc,
+  cb: (item: T, acc: Acc, index: number, iterable: Iterable<T>) => void
+): Acc
+export function accForEach<T, Acc>(
   iterable: Iterable<T> | T[],
   acc: Acc,
-  cb: (item: T, acc: Acc, index: number, iterable: Iterable<T>
-  ) => void): Acc {
+  cb: (item: T, acc: Acc, index: number, iterable: any) => void
+): Acc {
   if (Array.isArray(iterable)) iterable.forEach((item, i) => cb(item, acc, i, iterable));
   else {
     let i = 0;
@@ -61,6 +75,7 @@ export function accForEach<T, Acc>(
   }
   return acc;
 }
+// @formatter:on
 
 // endregion
 
@@ -112,11 +127,14 @@ export const camelToSnake = (s: string) =>
 /**
  * Deep Copy (uses package: rfdc)
  */
-export { default as deepCopy } from 'rfdc';
+import deepCopy from 'rfdc';
 
 /**
  * Deep Merge (uses package: deepmerge)
  */
-export { default as deepMerge } from 'deepmerge';
+import deepMerge from 'deepmerge'
+
+
+export { deepMerge, deepCopy }
 
 // endregion

@@ -56,7 +56,13 @@ export type PartialSome<T, K extends keyof T> = Omit<T, K> & Pick<Partial<T>, K>
 /**
  * Flatten multi-level array
  */
-type Flatten<T extends Array<any>> = {
+export type Flatten<T extends Array<any>> = {
   [K in keyof T]: T[K] extends Array<any> ? Flatten<T[K][number]> : T[K]
 }
 
+/**
+ * Apply Partial recursively
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
+};

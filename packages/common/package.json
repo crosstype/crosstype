@@ -1,7 +1,7 @@
 {
   "name": "@crosstype/common",
   "description": "Common helpers & types for TypeScript projects",
-  "version": "0.0.1",
+  "version": "0.0.12",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,9 +32,10 @@
     "node": ">=11.6"
   },
   "dependencies": {
-    "rfdc": "^1.1.4",
-    "deepmerge": "^4.2.2",
     "@types/deepmerge": "^2.2.0",
-    "@types/rfdc": "^1.1.0"
+    "@types/rfdc": "^1.1.0",
+    "deepmerge": "^4.2.2",
+    "reflect-metadata": "^0.1.13",
+    "rfdc": "^1.1.4"
   }
 }

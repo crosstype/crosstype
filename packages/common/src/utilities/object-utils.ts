@@ -1,4 +1,4 @@
-import { accForEach, camelToSnake, snakeToCamel } from './general-utils';
+import { accForEach, camelToSnake, deepMerge, snakeToCamel } from './general-utils';
 
 
 /* ****************************************************************************************************************** *
@@ -82,4 +82,37 @@ export const camelCaseObject = <T = any>(o: object): T => {
     res[snakeToCamel(key)] = value;
   }
   return res;
+}
+
+// @formatter:off
+/**
+ * Walks parent lineage and cascades properties
+ * @param obj - target object
+ * @param parentKey - key which points to parent object
+ * @param prioritize - default: highest
+ * @param useDeepMerge - Use deepMerge instead of overwriting (default: true)
+ */
+export function cascadeProperties<
+  T extends { [K in TKeys | TParentKey]?: any },
+  TParentKey extends keyof T,
+  TKeys extends keyof T = keyof T,
+>(
+  obj: T,
+  parentKey: TParentKey,
+  keys: TKeys[] = Object.keys(obj) as TKeys[],
+  prioritize: 'lowest' | 'highest' = 'highest',
+  useDeepMerge: boolean = true
+): Pick<T, TKeys>
+// @formatter:on
+{
+  const objects: any[] = [];
+  for (let o = obj; o; o = o[parentKey])
+    objects[(prioritize === 'highest') ? 'unshift' : 'push'](o);
+
+  return accForEach(objects, {}, (o, res: any) => {
+    keys.forEach(key => {
+      if (!o.hasOwnProperty(key)) return;
+      res[key] = !useDeepMerge ? o[key] : deepMerge(res[key], o[key], { arrayMerge: (a, b) => b })
+    });
+  }) as Pick<T, TKeys>
 }

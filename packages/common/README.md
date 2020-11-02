@@ -10,7 +10,6 @@ in their projects!
 
 - JSON Types
 - Utility Types (`OneOrMore`, `RequireSome`, etc)
-- Extended TypeScript compiler API methods
 - Mixin decorator
 - General TS/JS helpers (typed getKeys, pick, omit, etc.)
 

@@ -1,4 +1,4 @@
-import { Matcher } from '../../src/components/matcher';
+import { Matcher } from '../../src/components';
 import { expectTypeOf } from 'expect-type';
 
 

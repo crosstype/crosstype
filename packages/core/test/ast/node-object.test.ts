@@ -60,6 +60,7 @@ const level0_sourceFile = createSourceFile({
   fileName: '',
   name: 'root',
   language: 'typescript',
+  isExternal: false,
   definitions: NodeMap.from([ level1_definition ])
 });
 

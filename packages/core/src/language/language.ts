@@ -1,4 +1,4 @@
-import { removeUndefinedFromArray } from '@crosstype/common';
+import { predicates } from '@crosstype/common';
 import { JsonSchema, Python, TypeScript } from './imports';
 import { Compiler, LanguagePackage, Parser } from '#system';
 
@@ -8,7 +8,7 @@ import { Compiler, LanguagePackage, Parser } from '#system';
 /* ****************************************************************************************************************** */
 
 // Note: Keep all possible languages defined in this array
-const allLanguages = removeUndefinedFromArray([ TypeScript, JsonSchema, Python ]);
+const allLanguages = [ TypeScript, JsonSchema, Python ].filter(predicates.notNullish);
 
 // endregion
 

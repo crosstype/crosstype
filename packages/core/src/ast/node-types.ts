@@ -201,6 +201,8 @@ export interface SourceFile extends ModuleBase, Flags<TypeFlags, 'Module'> {
   readonly kind: NodeKind.SourceFile
   readonly language: Language.FullNames
   fileName: string
+  isExternal: boolean
+  locals?: NodeMap<Definition>
 }
 
 // endregion

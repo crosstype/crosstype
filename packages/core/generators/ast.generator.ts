@@ -8,7 +8,7 @@ import ts, {
 } from 'typescript';
 import { PluginConfig, ProgramTransformerExtras } from 'ts-patch';
 import { tsquery } from '@phenomnomnominal/tsquery';
-import { getAllBaseTypes, getPrimaryDeclaration } from '@crosstype/common';
+import { getAllBaseTypes, getPrimaryDeclaration } from '@crosstype/ts-api-utils';
 
 
 /* ****************************************************************************************************************** */

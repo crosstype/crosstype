@@ -5,7 +5,8 @@ import * as path from 'path';
 import { LogLevel, sys } from './index';
 import { normalizePath, Program } from 'typescript';
 import isGlob from 'is-glob';
-import { findLikelyTsConfigFile, pick } from '@crosstype/common';
+import { pick } from '@crosstype/common';
+import { findLikelyTsConfigFile } from '@crosstype/ts-api-utils';
 
 
 /* ****************************************************************************************************************** */

@@ -1,0 +1,40 @@
+{
+  "name": "@crosstype/ts-api-utils",
+  "description": "TypeScript Compiler API utilities",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "compile": "tsc",
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf coverage dist *.tsbuildinfo",
+    "-------------": "-------------",
+    "test": "echo not yet implemented",
+    "test:coverage": "jest --collect-coverage",
+    "------------- ": "-------------"
+  },
+  "author": {
+    "name": "Ron S.",
+    "email": "ron@crosstype.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crosstype/crosstype.git"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "keywords": [],
+  "engines": {
+    "node": ">=11.6"
+  },
+  "dependencies": {
+    "@crosstype/common": "~0.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^3.9.7"
+  }
+}

@@ -30,6 +30,7 @@
     "@crosstype/build-tools": "link:packages/build-tools",
     "@crosstype/common": "link:packages/common",
     "@crosstype/core": "link:packages/core",
+    "@crosstype/ts-api-utils": "link:packages/ts-api-utils",
     "@phenomnomnominal/tsquery": "^4.0.0",
     "@types/glob": "^7.1.1",
     "@types/is-glob": "^4.0.1",
@@ -58,6 +59,7 @@
   },
   "workspaces": [
     "packages/common",
+    "packages/ts-api-utils",
     "packages/build-tools",
     "packages/core"
   ],

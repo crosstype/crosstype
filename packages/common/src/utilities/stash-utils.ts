@@ -1,6 +1,5 @@
 import { DeepPartial } from './type-helpers';
-import { deepCopy, deepMerge } from './general-utils';
-import { pick } from './object-utils';
+import { accForEach, deepCopy, deepMerge } from './general-utils';
 
 
 /* ****************************************************************************************************************** */
@@ -31,8 +30,10 @@ export function stashAndUpdate<T, P extends DeepPartial<T>>(
   arrayMerge: deepMerge.Options['arrayMerge'] | undefined = (a, b) => b
 ): Stash<T, P>
 {
-  const pickedProperties = pick(target, ...<any[]>Object.keys(updatedProperties));
-  const stashedProperties = deepCopy({ proto: true })(pickedProperties) as unknown as P;
+  const pickedProperties = accForEach(Object.keys(updatedProperties), {}, (key, res: any) => {
+    res[key] = (<any>target)[key];
+  });
+  const stashedProperties = deepCopy()(pickedProperties) as unknown as P;
   Object.assign(
     target,
     !useDeepMerge ? updatedProperties : deepMerge(pickedProperties, <any>updatedProperties, { arrayMerge })

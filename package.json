@@ -42,7 +42,7 @@
     "is-glob": "^4.0.1",
     "jest": "^26.1.0",
     "rimraf": "^3.0.2",
-    "shelljs": "^0.8.4",
+    "shelljs": "^0.8.5",
     "shx": "^0.3.2",
     "ts-expose-internals": "3.9.7-patch",
     "ts-jest": "^26.1.0",
